@@ -5,11 +5,13 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { getCsrfToken, signIn } from "next-auth/react"
 import bs58 from "bs58"
+import { APP_DOMAIN } from "@/utils/constants"
+import Link from "next/link"
 
 export function SiteHeader() {
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  console.log("wallet", wallet.publicKey)
+
   const handleSignIn = async () => {
     try {
       if (!wallet.connected) {
@@ -34,7 +36,7 @@ export function SiteHeader() {
       signIn("credentials", {
         message: JSON.stringify(message),
         signature: serializedSignature,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/app",
       })
     } catch (error) {
       console.error(error)
@@ -56,13 +58,16 @@ export function SiteHeader() {
               onClick={(event) => {
                 event.preventDefault()
                 handleSignIn()
-                // signIn("github", {
-                //   callbackUrl: "/dashboard",
-                // })
               }}
             >
               Log in
             </a>
+            <Link
+              // href="https://app.eb91-2a09-bac1-7aa0-10-00-245-1.ngrok-free.app"
+              href="http://app.localhost:3000"
+            >
+              Go
+            </Link>
             <a
               href="#"
               className="mr-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 lg:px-5 lg:py-2.5"

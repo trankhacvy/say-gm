@@ -4,6 +4,7 @@ import { siteConfig } from "@/config/site"
 import { fontMono, fontSans } from "@/lib/fonts"
 import { cn } from "@/utils/cn"
 import Providers from "./providers"
+import { Toaster } from "@/components/ui/toast"
 require("@solana/wallet-adapter-react-ui/styles.css")
 
 export const metadata: Metadata = {
@@ -66,7 +67,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <head />
         <body className={cn("bg-background min-h-screen font-sans antialiased", fontSans.variable, fontMono.variable)}>
           <Providers>{children}</Providers>
-          {/* <Toaster /> */}
+          <Toaster />
         </body>
       </html>
     </>

@@ -1,8 +1,51 @@
-interface SiteHeaderProps {}
+"use client"
 
-export function SiteHeader() {
+import { SigninMessage } from "@/lib/signin-message"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import { getCsrfToken, signIn } from "next-auth/react"
+import bs58 from "bs58"
+import { APP_DOMAIN } from "@/utils/constants"
+import ConnectWalletButton from "./connect-wallet-button"
+
+export function LoginContent() {
+  const wallet = useWallet()
+  console.log("wallet", wallet)
+  const walletModal = useWalletModal()
+
+  const handleSignIn = async () => {
+    try {
+      if (!wallet.connected) {
+        walletModal.setVisible(true)
+        return
+      }
+
+      const csrf = await getCsrfToken()
+      if (!wallet.publicKey || !csrf || !wallet.signMessage) return
+
+      const message = new SigninMessage({
+        domain: window.location.host,
+        publicKey: wallet.publicKey?.toBase58(),
+        statement: `Sign this message to sign in to the app.`,
+        nonce: csrf,
+      })
+
+      const data = new TextEncoder().encode(message.prepare())
+      const signature = await wallet.signMessage(data)
+      const serializedSignature = bs58.encode(signature)
+
+      signIn("credentials", {
+        message: JSON.stringify(message),
+        signature: serializedSignature,
+        callbackUrl: APP_DOMAIN,
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
-    <header>
+    <header className="py-20">
       <nav className="border-gray-200 bg-white px-4 py-2.5 dark:bg-gray-800 lg:px-6">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between">
           <a href="https://flowbite.com" className="flex items-center">
@@ -13,9 +56,17 @@ export function SiteHeader() {
             <a
               href="#"
               className="mr-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-800 lg:px-5 lg:py-2.5"
+              onClick={(event) => {
+                event.preventDefault()
+                handleSignIn()
+                // signIn("github", {
+                //   callbackUrl: "http://app.localhost:3000",
+                // })
+              }}
             >
               Log in
             </a>
+            <ConnectWalletButton />
             <a
               href="#"
               className="mr-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 lg:px-5 lg:py-2.5"

@@ -2,11 +2,9 @@ import NextAuth, { type NextAuthOptions } from "next-auth"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { SigninMessage } from "@/lib/signin-message"
-import GumService from "@/lib/gum"
-import { PublicKey } from "@solana/web3.js"
 
 const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL
-
+console.log("VERCEL_DEPLOYMENT", VERCEL_DEPLOYMENT)
 export const authOptions: NextAuthOptions = {
   providers: [
     GitHubProvider({
@@ -42,8 +40,24 @@ export const authOptions: NextAuthOptions = {
 
           if (!validationResult) throw new Error("Could not validate the signed message")
 
+          const wallet = signinMessage.publicKey
+          let profile = null
+
+          // try {
+          //   const domains = await GumService.sdk.nameservice.getDomainByName("demo")
+          //   // @ts-ignore
+          //   const domain = domains.find((d) => d.authority === wallet)
+          //   console.log("domain xx", domain)
+          //   profile = await GumService.sdk.profile.getProfilesByScreenName(new PublicKey(domain.address))
+          //   console.log("profile", profile)
+          // } catch (error) {
+          //   console.error("get gum profile", error)
+          // }
+
           return {
             id: signinMessage.publicKey,
+            name: "tester",
+            email: "tester@xx.com",
           }
         } catch (e) {
           return null
@@ -60,43 +74,34 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
-        domain: VERCEL_DEPLOYMENT ? ".solar.xyz" : undefined,
+        domain: VERCEL_DEPLOYMENT ? `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : undefined,
         secure: VERCEL_DEPLOYMENT,
       },
     },
   },
-  pages: {
-    error: "/login",
-  },
+  // pages: {
+  //   error: "/login",
+  // },
   callbacks: {
-    signIn: async ({ user, account, profile }) => {
-      console.log("[signIn] user", user)
-      console.log("[signIn] account", account)
-      console.log("[signIn] profile", profile)
+    // signIn: async ({ user, account, profile }) => {
+    //   console.log("[signIn] user", user)
+    //   console.log("[signIn] account", account)
+    //   console.log("[signIn] profile", profile)
 
-      if(!user.id) return false;
+    //   if (!user.id) return false
 
-      try {
-        const profiles = await GumService.sdk.profile.getProfilesByAuthority(new PublicKey(user.id))
-        console.log("check", profiles)
-      } catch (error) {
-        console.error("check error", error)
-      }
-
-
-
-      return true
-    },
-    jwt: async ({ token, user, trigger }) => {
+    //   return true
+    // },
+    jwt: async ({ token, user }) => {
       console.log("[jwt] token", token)
       console.log("[jwt] user", user)
 
       // if (!token.email || (await isBlacklistedEmail(token.email))) {
       //   return {};
       // }
-      // if (user) {
-      //   token.user = user;
-      // }
+      if (user) {
+        token.user = user
+      }
       // if (trigger === "update") {
       //   const refreshedUser = await prisma.user.findUnique({
       //     where: { id: token.sub },
@@ -114,7 +119,7 @@ export const authOptions: NextAuthOptions = {
       console.log("[session] token", token)
       session.user = {
         // @ts-ignore
-        // id: token.sub,
+        id: token.sub,
         ...session.user,
       }
       return session

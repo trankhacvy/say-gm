@@ -7,3 +7,18 @@
     @apply min-h-screen w-full text-gray-900 antialiased;
   }
 }
+
+@layer utilities {
+  .bg-image-blur:before {
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    content: "";
+    opacity: 0.24;
+    position: absolute;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url(/assets/overlay.jpg);
+  }
+}

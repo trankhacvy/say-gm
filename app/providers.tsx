@@ -25,12 +25,12 @@ export default function Providers({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(
     () => [
-      new CoinbaseWalletAdapter(),
+      // new CoinbaseWalletAdapter(),
       new PhantomWalletAdapter(),
-      new GlowWalletAdapter(),
-      new SlopeWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
-      new TorusWalletAdapter(),
+      // new GlowWalletAdapter(),
+      // new SlopeWalletAdapter(),
+      // new SolflareWalletAdapter({ network }),
+      // new TorusWalletAdapter(),
     ],
     [network]
   )
