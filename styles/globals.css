@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  html,
   body {
-    @apply min-h-screen w-full text-gray-900 antialiased;
+    @apply h-full w-full;
+  }
+  body {
+    @apply min-h-screen text-gray-900 antialiased;
   }
 }
 

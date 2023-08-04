@@ -6,6 +6,9 @@ import withPlugins from "next-compose-plugins"
  */
 const config = withPlugins([[withBundleAnalyzer({ enabled: false })]], {
   reactStrictMode: true,
+  images: {
+    domains: ["api-prod-minimal-v510.vercel.app"],
+  },
 })
 
 export default config
