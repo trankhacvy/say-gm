@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Typography } from "../ui/typography"
 import { AspectRatio } from "../ui/aspect-ratio"
 
-export default function PostCard() {
+export default function Feed() {
   return (
     <div className="w-full rounded-2xl bg-white shadow-card">
       <div className="flex items-center gap-4 px-6 pt-6">
@@ -26,7 +26,12 @@ export default function PostCard() {
       </div>
       <div className="p-2">
         <AspectRatio ratio={16 / 9}>
-          <Image className="rounded-xl" alt="profile" src="/assets/product.jpg" fill />
+          <Image
+            className="rounded-xl"
+            alt="profile"
+            src="https://api-prod-minimal-v510.vercel.app/assets/images/avatar/avatar_25.jpg"
+            fill
+          />
         </AspectRatio>
       </div>
     </div>

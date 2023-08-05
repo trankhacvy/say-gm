@@ -1,17 +1,13 @@
 import NextAuth, { type NextAuthOptions } from "next-auth"
-import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { SigninMessage } from "@/lib/signin-message"
+import Supabase from "@/lib/supabase"
+import { Database } from "@/types/supabase.types"
 
 const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL
-console.log("VERCEL_DEPLOYMENT", VERCEL_DEPLOYMENT)
+
 export const authOptions: NextAuthOptions = {
   providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
-
     CredentialsProvider({
       name: "Solana",
       credentials: {
@@ -41,24 +37,16 @@ export const authOptions: NextAuthOptions = {
           if (!validationResult) throw new Error("Could not validate the signed message")
 
           const wallet = signinMessage.publicKey
-          let profile = null
 
-          // try {
-          //   const domains = await GumService.sdk.nameservice.getDomainByName("demo")
-          //   // @ts-ignore
-          //   const domain = domains.find((d) => d.authority === wallet)
-          //   console.log("domain xx", domain)
-          //   profile = await GumService.sdk.profile.getProfilesByScreenName(new PublicKey(domain.address))
-          //   console.log("profile", profile)
-          // } catch (error) {
-          //   console.error("get gum profile", error)
-          // }
-
-          return {
-            id: signinMessage.publicKey,
-            name: "tester",
-            email: "tester@xx.com",
+          let user: Database["public"]["Tables"]["tbl_users"]["Row"] | null = null
+          try {
+            user = await Supabase.findUserByWallet(wallet)
+          } catch (error) {
+            console.error(error)
+            user = await Supabase.createUser(wallet)
           }
+
+          return user
         } catch (e) {
           return null
         }
@@ -79,49 +67,34 @@ export const authOptions: NextAuthOptions = {
       },
     },
   },
-  // pages: {
-  //   error: "/login",
-  // },
   callbacks: {
-    // signIn: async ({ user, account, profile }) => {
-    //   console.log("[signIn] user", user)
-    //   console.log("[signIn] account", account)
-    //   console.log("[signIn] profile", profile)
+    jwt: async ({ token, user, trigger }) => {
+      // console.log("[jwt] token", token)
+      // console.log("[jwt] user", user)
 
-    //   if (!user.id) return false
-
-    //   return true
-    // },
-    jwt: async ({ token, user }) => {
-      console.log("[jwt] token", token)
-      console.log("[jwt] user", user)
-
-      // if (!token.email || (await isBlacklistedEmail(token.email))) {
-      //   return {};
-      // }
       if (user) {
-        token.user = user
+        token.user = user as Database["public"]["Tables"]["tbl_users"]["Row"]
       }
-      // if (trigger === "update") {
-      //   const refreshedUser = await prisma.user.findUnique({
-      //     where: { id: token.sub },
-      //   });
-      //   token.user = refreshedUser;
-      //   token.name = refreshedUser?.name;
-      //   token.email = refreshedUser?.email;
-      //   token.image = refreshedUser?.image;
-      // }
+
+      if (trigger === "update") {
+        console.log("token trigger update token", token)
+        console.log("token trigger update user", user)
+        if (token.user?.wallet) {
+          const updatedUser = await Supabase.findUserByWallet(token.user?.wallet)
+          token.user = updatedUser
+        }
+      }
 
       return token
     },
     session: async ({ session, token }) => {
-      console.log("[session] session", session)
-      console.log("[session] token", token)
+      // console.log("[session] session", session)
+      // console.log("[session] token", token)
       session.user = {
-        // @ts-ignore
-        id: token.sub,
         ...session.user,
+        ...token.user,
       }
+
       return session
     },
   },

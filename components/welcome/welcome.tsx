@@ -1,24 +1,46 @@
 "use client"
 
+import { keccak_256 } from "js-sha3"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Typography } from "../ui/typography"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "../ui/input"
-import { siteConfig } from "@/config/site"
 import { Button } from "../ui/button"
 import { useToast } from "../ui/toast"
+import { useRouter } from "next/navigation"
+import { useWallet } from "@solana/wallet-adapter-react"
+import ConnectWalletButton from "../connect-wallet-button"
+import { GUM_TLD_ACCOUNT, SDK, useCreateProfile, useGumContext, useUploaderContext } from "@gumhq/react-sdk"
+import { AspectRatio } from "../ui/aspect-ratio"
+import { Uploader } from "../ui/uploader"
+import Supabase from "@/lib/supabase"
+import { PublicKey } from "@solana/web3.js"
+import { useSession } from "next-auth/react"
 
-const formSchema = z.object({
+export default function WelcomeView() {
+  return <ProfileForm />
+}
+
+const profileFormSchema = z.object({
+  avatar: z.any().refine((file) => !!file, "Image is required."),
   username: z.string().trim(),
   name: z.string().trim(),
   bio: z.string().trim(),
 })
 
-export default function WelcomeView() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+function ProfileForm() {
+  const router = useRouter()
+  const wallet = useWallet()
+  const { publicKey } = wallet
+  const { handleUpload } = useUploaderContext()
+  const { sdk } = useGumContext()
+  const { createProfileWithDomain } = useCreateProfile(sdk)
+  const { update } = useSession()
+
+  const form = useForm<z.infer<typeof profileFormSchema>>({
+    resolver: zodResolver(profileFormSchema),
     defaultValues: {
       username: "",
       name: "",
@@ -26,17 +48,55 @@ export default function WelcomeView() {
     },
   })
 
-  const { control, formState } = form
+  const { control, formState, setError } = form
 
   const { toast } = useToast()
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof profileFormSchema>) {
     try {
-      toast({
-        variant: "success",
-        title: false ? "NFT successfully updated" : "NFT successfully created",
+      if (!publicKey) return
+
+      const domain = await findDomain(sdk, values.username)
+      console.log("check domain", domain)
+      if (domain && domain.authority.toBase58() !== publicKey.toBase58()) {
+        throw new Error("Username already exist")
+      }
+
+      const avatarUpload = await Supabase.uploadFile(`${new Date().getTime()}`, values.avatar)
+      console.log(avatarUpload)
+
+      const profileMetadata = {
+        name: values.name,
+        bio: values.bio,
+        avatar: avatarUpload?.data?.publicUrl,
+      }
+
+      const uploadRes = await handleUpload(profileMetadata, wallet)
+      if (!uploadRes) {
+        throw new Error("Error uploading profile metadata")
+      }
+
+      const profilePda = await createProfileWithDomain(uploadRes.url, values.username, publicKey)
+      if (!profilePda) {
+        console.error("error creating profile")
+        throw new Error("Error creating profile")
+      }
+      console.log("profilePda", profilePda.toBase58())
+      const profile = await sdk.profile.getProfilesByProfileAccount(profilePda)
+      console.log("profile", profile)
+
+      const domainAccount = await getDomainAccount(sdk, values.username)
+
+      const updatedUser = await Supabase.updateUser(publicKey.toBase58(), {
+        domain_name: values.username,
+        domain_address: domainAccount.toBase58(),
+        profile_address: profilePda.toBase58(),
+        profile_screen_name: domainAccount.toBase58(),
+        profile_metadata: profileMetadata,
+        profile_metadata_uri: uploadRes.url,
       })
-      //   replace(Routes.NFT_DETAIL(response.id))
+      await update(updatedUser)
+      router.replace(`/u/${values.username}`)
     } catch (error: any) {
       console.error(error)
       toast({
@@ -51,9 +111,36 @@ export default function WelcomeView() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-lg">
         <div className="w-full rounded-2xl bg-white p-6 shadow-card">
           <Typography as="h2" level="h6" className="mb-10 font-bold">
-            Welcome to {siteConfig.name}
+            Create profile
           </Typography>
           <div className="space-y-5">
+            <FormField
+              control={control}
+              name="avatar"
+              render={({ field }) => (
+                <FormItem className="w-full max-w-[240px]">
+                  <FormLabel>Avatar</FormLabel>
+                  <AspectRatio ratio={1 / 1}>
+                    <Uploader
+                      {...field}
+                      className="h-full"
+                      maxFiles={1}
+                      accept={{
+                        "image/png": [".png"],
+                        "image/jpeg": [".jpg", ".jpeg"],
+                      }}
+                      onExceedFileSize={() => setError("avatar", { message: "Max file size is 5MB" })}
+                      value={field.value ? [field.value] : []}
+                      onChange={(files) => {
+                        field.onChange(files?.[0])
+                      }}
+                    />
+                  </AspectRatio>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={control}
               name="username"
@@ -67,6 +154,7 @@ export default function WelcomeView() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={control}
               name="name"
@@ -88,7 +176,7 @@ export default function WelcomeView() {
                 <FormItem className="w-full">
                   <FormLabel>Bio</FormLabel>
                   <FormControl>
-                    <Input as="textarea" rows={5} fullWidth placeholder="Say something about you..." {...field} />
+                    <Input as="textarea" rows={6} fullWidth placeholder="Tell something about you..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,13 +184,40 @@ export default function WelcomeView() {
             />
 
             <div className="flex justify-end">
-              <Button type="submit" loading={formState.isSubmitting}>
-                Create profile
-              </Button>
+              {publicKey ? (
+                <Button type="submit" loading={formState.isSubmitting}>
+                  Create
+                </Button>
+              ) : (
+                <ConnectWalletButton />
+              )}
             </div>
           </div>
         </div>
       </form>
     </Form>
   )
+}
+
+async function findDomain(sdk: SDK, domain: string) {
+  try {
+    const domainHash = keccak_256(domain)
+    const [domainAccount, _] = PublicKey.findProgramAddressSync(
+      [Buffer.from("name_record"), Buffer.from(domainHash, "hex"), GUM_TLD_ACCOUNT.toBuffer()],
+      sdk.nameserviceProgram.programId
+    )
+    return await sdk.nameservice.get(domainAccount)
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+function getDomainAccount(sdk: SDK, domain: string) {
+  const domainHash = keccak_256(domain)
+  const [domainAccount, _] = PublicKey.findProgramAddressSync(
+    [Buffer.from("name_record"), Buffer.from(domainHash, "hex"), GUM_TLD_ACCOUNT.toBuffer()],
+    sdk.nameserviceProgram.programId
+  )
+  return domainAccount
 }

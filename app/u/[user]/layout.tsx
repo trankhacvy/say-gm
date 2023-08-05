@@ -6,7 +6,7 @@ interface UserPageLayoutProps {
 
 export default async function UserPageLayout({ children }: UserPageLayoutProps) {
   return (
-    <div className="h-full relative bg-image-blur">
+    <div className="bg-image-blur relative h-full">
       <UserPageHeader />
       <main className="flex min-h-screen flex-col py-24">{children}</main>
     </div>

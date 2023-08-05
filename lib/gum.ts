@@ -55,6 +55,10 @@ class GumService {
       return null
     }
   }
+
+  // async createProfile(domain: string, metadataUri: string) {
+  //   this.sdk.nameserviceProgram.methods.createNameRecord
+  // }
 }
 
 export default new GumService()

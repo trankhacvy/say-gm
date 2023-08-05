@@ -1,12 +1,12 @@
 import type { SiteConfig } from "@/types"
 
 export const siteConfig: SiteConfig = {
-  name: "Solar",
-  description: "A Solana-powered Next.js boilerplate app for building efficient and scalable web applications.",
-  url: "https://solana-starter.com",
-  ogImage: "https://solana-starter.com/og.jpg",
+  name: "Say GM",
+  description: "Say GM",
+  url: "https://say-gm.vercel.app",
+  ogImage: "https://say-gm.vercel.app/assets/hero.png",
   links: {
-    twitter: "",
-    github: "",
+    twitter: "https://twitter.com/trankhac_vy",
+    github: "https://github.com/trankhacvy",
   },
 }

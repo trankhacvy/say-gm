@@ -1,25 +1,23 @@
 import NextAuth, { DefaultSession, User as NAUser } from "next-auth"
+import { JWT as BaseJWT } from "next-auth/jwt"
+import { Database } from "@/types/supabase.types"
 
 declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
-  //   interface Session {
-  //     user: {
-  //       /** The user's postal address. */
-  //       address: string
-  //     } & DefaultSession["user"]
-  //   }
+  interface Session {
+    user: {
+      id: number
+    } & DefaultSession["user"] &
+      Database["public"]["Tables"]["tbl_users"]["Row"]
+  }
 
-  interface User extends NAUser {
-    profile?: {
-      address: string
-      screen_name: string
-      authority: string
-      metadata_uri: string
-      metadata: any
-      slot_created_at: number
-      slot_updated_at: number
-    } | null
+  interface User extends Database["public"]["Tables"]["tbl_users"]["Row"] {
+    id: number
+  }
+}
+
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT extends BaseJWT {
+    user?: Database["public"]["Tables"]["tbl_users"]["Row"]
   }
 }

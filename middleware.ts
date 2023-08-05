@@ -26,9 +26,12 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
   console.log({ hostname, path })
 
-  if (path.startsWith("/app")) {
+  if (path.startsWith("/u")) {
     const session = await getToken({ req })
-    console.log("check session", session)
+
+    if (session && !session.user?.domain_name) {
+      return NextResponse.redirect(new URL("/welcome", req.url))
+    }
   }
 
   // rewrites for app pages
@@ -48,10 +51,6 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
   if (path === "/") {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url))
   }
-  // if (hostname === "localhost:3000" || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
-  //   return NextResponse.rewrite(new URL(`/home${path}`, req.url))
-  // }
 
-  // rewrite everything else to `/[domain]/[path] dynamic route
   return NextResponse.rewrite(new URL(path, req.url))
 }
