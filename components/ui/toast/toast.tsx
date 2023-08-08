@@ -1,9 +1,9 @@
 "use client"
 
-import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
-import { tv, VariantProps } from "tailwind-variants"
 import { X } from "lucide-react"
+import * as React from "react"
+import { tv, VariantProps } from "tailwind-variants"
 import { cn } from "@/utils/cn"
 
 const ToastProvider = ToastPrimitives.Provider

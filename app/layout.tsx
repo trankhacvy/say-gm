@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import "@/styles/globals.css"
+import { Toaster } from "@/components/ui/toast"
 import { siteConfig } from "@/config/site"
 import { fontMono, fontSans } from "@/lib/fonts"
 import { cn } from "@/utils/cn"
 import Providers from "./providers"
-import { Toaster } from "@/components/ui/toast"
 require("@solana/wallet-adapter-react-ui/styles.css")
 
 export const metadata: Metadata = {

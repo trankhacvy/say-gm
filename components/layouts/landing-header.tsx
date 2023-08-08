@@ -1,7 +1,7 @@
 "use client"
 
-import { cn } from "@/utils/cn"
 import { useEffect, useState } from "react"
+import { cn } from "@/utils/cn"
 import ConnectWalletButton from "../connect-wallet-button"
 
 export function LandingHeader() {

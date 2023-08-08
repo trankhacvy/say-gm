@@ -1,7 +1,7 @@
 import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { tv, VariantProps } from "tailwind-variants"
 import { XIcon } from "lucide-react"
 import * as React from "react"
+import { tv, VariantProps } from "tailwind-variants"
 import { cn } from "@/utils/cn"
 
 const Sheet = SheetPrimitive.Root

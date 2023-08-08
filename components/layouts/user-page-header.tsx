@@ -1,15 +1,15 @@
 "use client"
 
 import { MenuIcon } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { IconButton } from "@/components/ui/icon-button"
 import { cn } from "@/utils/cn"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Typography } from "../ui/typography"
-import { Separator } from "../ui/separator"
-import { signOut, useSession } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { Separator } from "../ui/separator"
 import { Skeleton } from "../ui/skeleton"
+import { Typography } from "../ui/typography"
 
 export function UserPageHeader() {
   const [small, setSmall] = useState(false)

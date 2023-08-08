@@ -1,9 +1,9 @@
 import { GRAPHQL_ENDPOINTS, GUM_TLD_ACCOUNT, GumDecodedProfile, SDK } from "@gumhq/sdk"
-import { keccak_256 } from "js-sha3"
 import * as anchor from "@project-serum/anchor"
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
-import { PublicKey, clusterApiUrl } from "@solana/web3.js"
+import { clusterApiUrl, PublicKey } from "@solana/web3.js"
 import { GraphQLClient } from "graphql-request"
+import { keccak_256 } from "js-sha3"
 import { SOLANA_CLUSTER } from "@/utils/env"
 
 class GumService {

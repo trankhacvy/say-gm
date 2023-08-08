@@ -1,39 +1,22 @@
-"use client"
+import { Database } from "@/types/supabase.types"
+import PostCard from "./post"
 
-import Image from "next/image"
-import { Typography } from "../ui/typography"
-import { AspectRatio } from "../ui/aspect-ratio"
+type FeedProps = {
+  user: Database["public"]["Tables"]["tbl_users"]["Row"]
+}
 
-export default function Feed() {
+export default async function Feed(_: FeedProps) {
+  const posts = (await (await fetch("https://jsonplaceholder.typicode.com/posts")).json()) as {
+    id: string
+    title: string
+    body: string
+  }[]
+
   return (
-    <div className="w-full rounded-2xl bg-white shadow-card">
-      <div className="flex items-center gap-4 px-6 pt-6">
-        <Image
-          width={40}
-          height={40}
-          alt="profile"
-          src="https://api-prod-minimal-v510.vercel.app/assets/images/avatar/avatar_25.jpg"
-          className="rounded-full"
-        />
-        <div className="flex-1">
-          <Typography className="font-semibold">David</Typography>
-        </div>
-      </div>
-      <div className="px-6 pb-4 pt-6">
-        <Typography as="p" level="body4">
-          The sun slowly set over the horizon, painting the sky in vibrant hues of orange and pink.
-        </Typography>
-      </div>
-      <div className="p-2">
-        <AspectRatio ratio={16 / 9}>
-          <Image
-            className="rounded-xl"
-            alt="profile"
-            src="https://api-prod-minimal-v510.vercel.app/assets/images/avatar/avatar_25.jpg"
-            fill
-          />
-        </AspectRatio>
-      </div>
+    <div className="flex w-full flex-col gap-6 px-3 lg:w-2/3">
+      {posts.map((post) => (
+        <PostCard key={post.id} title={post.title} body={post.body} />
+      ))}
     </div>
   )
 }

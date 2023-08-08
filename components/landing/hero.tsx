@@ -1,18 +1,18 @@
 "use client"
 
-import bs58 from "bs58"
-import Image from "next/image"
-import { Typography } from "../ui/typography"
-import { AspectRatio } from "../ui/aspect-ratio"
-import { Button } from "../ui/button"
-import { ArrowRightIcon } from "lucide-react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-import { getCsrfToken, signIn, useSession } from "next-auth/react"
-import { SigninMessage } from "@/lib/signin-message"
-import { useEffect, useState } from "react"
+import bs58 from "bs58"
+import { ArrowRightIcon } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { getCsrfToken, signIn, useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { SigninMessage } from "@/lib/signin-message"
 import supabase from "@/lib/supabase"
+import { AspectRatio } from "../ui/aspect-ratio"
+import { Button } from "../ui/button"
+import { Typography } from "../ui/typography"
 
 export default function Hero() {
   const wallet = useWallet()
@@ -51,16 +51,11 @@ export default function Hero() {
       const res = await signIn("credentials", {
         message: JSON.stringify(message),
         signature: serializedSignature,
-        redirect: false,
+        callbackUrl: "/dashboard",
       })
-      if (res?.ok) {
-        const user = await supabase.findUserByWallet(wallet.publicKey.toBase58())
-        if (user.domain_name) {
-          router.replace(`/u/${user.domain_name}`)
-        } else {
-          router.replace("/welcome")
-        }
-      }
+      // if (res?.ok) {
+      //   router.replace("/dashboard")
+      // }
     } catch (error) {
       console.error(error)
     } finally {

@@ -1,17 +1,5 @@
-import { Database } from "@/types/supabase.types"
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
-
-// export const Supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_API_KEY!)
-
-// export const uploadFile = async (client: SupabaseClient, filename: string, file: File) => {
-//   const { data, error } = await client.storage.from("poap").upload(filename, file, {
-//     upsert: true,
-//   })
-//   if (!data || error) {
-//     return { data, error }
-//   }
-//   return client.storage.from("poap").getPublicUrl(filename)
-// }
+import { Database } from "@/types/supabase.types"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -32,6 +20,8 @@ class Supabase {
   async findUserUsername(username: string) {
     const { data, error } = await this.client.from("tbl_users").select("*").eq("domain_name", username).single()
     if (!data || error) throw error
+
+    await sleep(1000 * 5)
     return data
   }
 
@@ -64,3 +54,7 @@ class Supabase {
 }
 
 export default new Supabase()
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

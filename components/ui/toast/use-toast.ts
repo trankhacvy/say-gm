@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState, useEffect } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import type { ToastActionElement, ToastProps } from "./toast"
 
 const TOAST_LIMIT = 1

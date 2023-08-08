@@ -1,8 +1,8 @@
-import { cn } from "@/utils/cn"
 import Image from "next/image"
 import { useState } from "react"
 
 import type { ComponentProps } from "react"
+import { cn } from "@/utils/cn"
 
 export default function BlurImage(props: ComponentProps<typeof Image>) {
   const [isLoading, setLoading] = useState(true)

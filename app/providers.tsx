@@ -1,15 +1,15 @@
 "use client"
 
-import { ReactNode, useEffect, useMemo } from "react"
+import { GumProvider, UploaderProvider } from "@gumhq/react-sdk"
+import { ConnectionProvider, useConnection, useWallet, WalletProvider } from "@solana/wallet-adapter-react"
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets"
+import { clusterApiUrl } from "@solana/web3.js"
 import { Analytics } from "@vercel/analytics/react"
 import { SessionProvider, signOut, useSession } from "next-auth/react"
-import { ConnectionProvider, WalletProvider, useConnection, useWallet } from "@solana/wallet-adapter-react"
-import { clusterApiUrl } from "@solana/web3.js"
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets"
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
-import { GumProvider, UploaderProvider } from "@gumhq/react-sdk"
-import { SOLANA_CLUSTER } from "@/utils/env"
+import { ReactNode, useEffect, useMemo } from "react"
 import { useGumSDK } from "@/hooks/use-gum-sdk"
+import { SOLANA_CLUSTER } from "@/utils/env"
 
 const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
   const { connection } = useConnection()

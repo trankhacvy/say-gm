@@ -1,5 +1,6 @@
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { Routes } from "./config/routes"
 
 export const config = {
   matcher: [
@@ -16,6 +17,8 @@ export const config = {
   ],
 }
 
+const protectedPaths = [Routes.DASHBOARD, Routes.POSTS, Routes.MY_SUPPORTERS, Routes.MEMBERSHIPS, Routes.SETTINGS]
+
 export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
   const url = req.nextUrl
 
@@ -26,26 +29,17 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
   console.log({ hostname, path })
 
-  if (path.startsWith("/u")) {
+  if (protectedPaths.some((route) => path.startsWith(route))) {
     const session = await getToken({ req })
-
-    if (session && !session.user?.domain_name) {
+    // console.log('[middleware] check session: ', session);
+    if (!session) {
+      // TODO check if user is in un-protected paths
+      return NextResponse.redirect(new URL("/", req.url))
+    } else if (session && !session.user?.domain_name) {
       return NextResponse.redirect(new URL("/welcome", req.url))
     }
+    return NextResponse.rewrite(new URL(path, req.url))
   }
-
-  // rewrites for app pages
-  // if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-  //   const session = await getToken({ req })
-  //   console.log("check session", session)
-
-  //   if (!session && path !== "/login") {
-  //     return NextResponse.redirect(new URL("/login", req.url))
-  //   } else if (session && path == "/login") {
-  //     return NextResponse.redirect(new URL("/", req.url))
-  //   }
-  //   return NextResponse.rewrite(new URL(`/app${path === "/" ? "" : path}`, req.url))
-  // }
 
   // rewrite root application to `/home` folder
   if (path === "/") {

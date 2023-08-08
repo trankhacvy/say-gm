@@ -2,16 +2,35 @@
 
 import { FlameIcon, SettingsIcon } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/utils/cn"
+import { usePathname } from "next/navigation"
 import { Typography } from "@/components/ui/typography"
 import { Routes } from "@/config/routes"
-
-export type Props = {}
+import { cn } from "@/utils/cn"
 
 const NavItems = [
   {
-    text: "NFTs",
+    text: "Home",
     href: Routes.DASHBOARD,
+    icon: <FlameIcon />,
+  },
+  {
+    text: "Posts",
+    href: Routes.POSTS,
+    icon: <FlameIcon />,
+  },
+  {
+    text: "My Supporters",
+    href: Routes.MY_SUPPORTERS,
+    icon: <FlameIcon />,
+  },
+  {
+    text: "Memberships",
+    href: Routes.MEMBERSHIPS,
+    icon: <FlameIcon />,
+  },
+  {
+    text: "Shop",
+    href: Routes.SHOP,
     icon: <FlameIcon />,
   },
   {
@@ -22,7 +41,7 @@ const NavItems = [
 ]
 
 export const DashboardNav = () => {
-  const asPath = "/"
+  const pathname = usePathname() ?? ""
 
   return (
     <nav className="hidden w-[280px] shrink-0 lg:block">
@@ -39,7 +58,7 @@ export const DashboardNav = () => {
                 key={item.text}
                 text={item.text}
                 href={item.href}
-                selected={item.href === "/" ? asPath === item.href : asPath.startsWith(item.href)}
+                selected={item.href === "/" ? pathname === item.href : pathname.startsWith(item.href)}
                 icon={item.icon}
               />
             ))}

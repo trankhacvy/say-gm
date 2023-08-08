@@ -1,17 +1,17 @@
 "use client"
 
-import { Alert, AlertTitle, AlertDescription, AlertIcon } from "@/components/ui/alert"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import {
-  X,
-  AlertTriangleIcon,
   AlertCircleIcon,
+  AlertTriangleIcon,
   CheckCircle2Icon,
+  X,
   XCircleIcon,
 } from "lucide-react"
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/components/ui/alert"
+import { cn } from "@/utils/cn"
 import { Toast, ToastProvider, ToastViewport } from './toast'
 import { useToast } from "./use-toast"
-import { cn } from "@/utils/cn"
 
 export function Toaster() {
   const { toasts } = useToast()

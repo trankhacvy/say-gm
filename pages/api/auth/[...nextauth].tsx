@@ -77,8 +77,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (trigger === "update") {
-        console.log("token trigger update token", token)
-        console.log("token trigger update user", user)
         if (token.user?.wallet) {
           const updatedUser = await Supabase.findUserByWallet(token.user?.wallet)
           token.user = updatedUser

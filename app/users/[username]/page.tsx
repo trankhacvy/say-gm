@@ -1,27 +1,24 @@
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Typography } from "@/components/ui/typography"
-import PostCard from "@/components/user-page/post"
+import Feed from "@/components/user-page/feed"
+import UserInfo from "@/components/user-page/user-info"
 import Supabase from "@/lib/supabase"
-import Image from "next/image"
 
-export default async function UserPage({ params }: { params: { user: string } }) {
-  const user = await Supabase.findUserUsername(params.user)
+export default async function UserPage({ params }: { params: { username: string } }) {
+  const user = await Supabase.findUserUsername(params.username)
+
+  if (!user) {
+    notFound()
+  }
 
   return (
     <div className="mx-auto w-full max-w-screen-xl">
       <div className="flex w-full flex-col items-center">
-        <Image
-          // @ts-ignore
-          alt={user.profile_metadata?.name}
-          // @ts-ignore
-          src={user.profile_metadata?.avatar ?? ""}
-          width={120}
-          height={120}
-          className="overflow-hidden rounded-full"
-        />
-        <Typography as="h2" level="h6" className="mt-4 font-bold">
-          {/* @ts-ignore */}
-          {user.profile_metadata?.name}
-        </Typography>
+        <Suspense fallback={<Skeleton className="h-10 w-10 rounded-full" />}>
+          <UserInfo user={user} />
+        </Suspense>
         <div className="-mx-3 mt-10 flex w-full flex-wrap">
           <div className="mb-6 w-full px-3 lg:mb-0 lg:w-1/3">
             <div className="w-full rounded-2xl bg-white p-6 shadow-card">
@@ -36,12 +33,9 @@ export default async function UserPage({ params }: { params: { user: string } })
               </div>
             </div>
           </div>
-
-          <div className="flex w-full flex-col gap-6 px-3 lg:w-2/3">
-            <PostCard />
-            <PostCard />
-            <PostCard />
-          </div>
+          <Suspense fallback={<Skeleton className="h-10 w-10 rounded-full" />}>
+            <Feed user={user} />
+          </Suspense>
         </div>
       </div>
     </div>
