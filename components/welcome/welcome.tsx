@@ -57,13 +57,14 @@ function ProfileForm() {
       if (!publicKey) return
 
       const domain = await findDomain(sdk, values.username)
-      console.log("check domain", domain)
+
       if (domain && domain.authority.toBase58() !== publicKey.toBase58()) {
         throw new Error("Username already exist")
       }
 
       const avatarUpload = await Supabase.uploadFile(`${new Date().getTime()}`, values.avatar)
-      console.log(avatarUpload)
+
+      if (!avatarUpload.data?.publicUrl) throw new Error("Error uploading avatar")
 
       const profileMetadata = {
         name: values.name,
@@ -78,12 +79,10 @@ function ProfileForm() {
 
       const profilePda = await createProfileWithDomain(uploadRes.url, values.username, publicKey)
       if (!profilePda) {
-        console.error("error creating profile")
         throw new Error("Error creating profile")
       }
-      console.log("profilePda", profilePda.toBase58())
+
       const profile = await sdk.profile.getProfilesByProfileAccount(profilePda)
-      console.log("profile", profile)
 
       const domainAccount = await getDomainAccount(sdk, values.username)
 

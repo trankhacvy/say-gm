@@ -17,9 +17,10 @@ import supabase from "@/lib/supabase"
 export default function Hero() {
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
   const [openConnectWallet, setOpenConnectWallet] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const login = async () => {
     try {
@@ -35,7 +36,7 @@ export default function Hero() {
       setOpenConnectWallet(false)
       const csrf = await getCsrfToken()
       if (!wallet.publicKey || !csrf || !wallet.signMessage) return
-
+      setLoading(true)
       const message = new SigninMessage({
         domain: window.location.host,
         publicKey: wallet.publicKey?.toBase58(),
@@ -54,10 +55,16 @@ export default function Hero() {
       })
       if (res?.ok) {
         const user = await supabase.findUserByWallet(wallet.publicKey.toBase58())
-        router.replace(`/u/${user.domain_name}`)
+        if (user.domain_name) {
+          router.replace(`/u/${user.domain_name}`)
+        } else {
+          router.replace("/welcome")
+        }
       }
     } catch (error) {
       console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -79,7 +86,7 @@ export default function Hero() {
               Say <span className="text-primary-500 underline">gm</span> to <br /> Your Fans <br /> On{" "}
               <span className="text-purple-700">Solana</span>
             </Typography>
-            <Button onClick={login} size="lg" endDecorator={<ArrowRightIcon />}>
+            <Button loading={loading} onClick={login} size="lg" endDecorator={<ArrowRightIcon />}>
               Start Now
             </Button>
           </div>

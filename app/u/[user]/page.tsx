@@ -4,8 +4,6 @@ import Supabase from "@/lib/supabase"
 import Image from "next/image"
 
 export default async function UserPage({ params }: { params: { user: string } }) {
-  console.log("check params", params)
-
   const user = await Supabase.findUserUsername(params.user)
 
   return (
@@ -18,9 +16,9 @@ export default async function UserPage({ params }: { params: { user: string } })
           src={user.profile_metadata?.avatar ?? ""}
           width={120}
           height={120}
-          className="rounded-full"
+          className="overflow-hidden rounded-full"
         />
-        <Typography as="h2" level="h6" className="mt-5 font-bold">
+        <Typography as="h2" level="h6" className="mt-4 font-bold">
           {/* @ts-ignore */}
           {user.profile_metadata?.name}
         </Typography>
