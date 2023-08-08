@@ -20,8 +20,6 @@ class Supabase {
   async findUserUsername(username: string) {
     const { data, error } = await this.client.from("tbl_users").select("*").eq("domain_name", username).single()
     if (!data || error) throw error
-
-    await sleep(1000 * 5)
     return data
   }
 
@@ -54,7 +52,3 @@ class Supabase {
 }
 
 export default new Supabase()
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
