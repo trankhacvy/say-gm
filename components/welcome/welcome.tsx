@@ -12,11 +12,11 @@ import * as z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import Supabase from "@/lib/supabase"
 import ConnectWalletButton from "../connect-wallet-button"
+import { AspectRatio } from "../ui/aspect-ratio"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { Typography } from "../ui/typography"
 import { useToast } from "../ui/toast"
-import { AspectRatio } from "../ui/aspect-ratio"
+import { Typography } from "../ui/typography"
 import { Uploader } from "../ui/uploader"
 
 export default function WelcomeView() {
