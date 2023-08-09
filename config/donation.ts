@@ -1,0 +1,1 @@
+export const USD_PER_GM = 1; // $1 per gm

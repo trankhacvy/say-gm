@@ -37,6 +37,49 @@ export interface Database {
           }
         ]
       }
+      tbl_donation: {
+        Row: {
+          amount: number | null
+          created_at: string
+          creator_id: number | null
+          donator: string | null
+          id: string
+          message: string | null
+          name: string | null
+          num_of_gm: number | null
+          signature: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          creator_id?: number | null
+          donator?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          num_of_gm?: number | null
+          signature?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          creator_id?: number | null
+          donator?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          num_of_gm?: number | null
+          signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_donation_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tbl_users: {
         Row: {
           created_at: string | null
