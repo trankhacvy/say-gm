@@ -10,9 +10,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Separator } from "../ui/separator"
 import { Skeleton } from "../ui/skeleton"
 import { Typography } from "../ui/typography"
+import { useWallet } from "@solana/wallet-adapter-react"
+import ConnectWalletButton from "../connect-wallet-button"
 
 export function UserPageHeader() {
   const [small, setSmall] = useState(false)
+  const { connected } = useWallet()
 
   useEffect(() => {
     function handler() {
@@ -37,7 +40,7 @@ export function UserPageHeader() {
           <MenuIcon />
         </IconButton>
         <div className="flex grow items-center justify-end gap-2">
-          <AdminUserMenu />
+          {connected ? <AdminUserMenu /> : <ConnectWalletButton />}
         </div>
       </div>
     </header>

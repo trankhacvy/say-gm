@@ -25,7 +25,7 @@ export default function Hero() {
   const login = async () => {
     try {
       if (session) {
-        router.push(`/u/${session.user.domain_name}`)
+        router.push(`/dashboard`)
         return
       }
       if (!wallet.connected) {
@@ -53,9 +53,6 @@ export default function Hero() {
         signature: serializedSignature,
         callbackUrl: "/dashboard",
       })
-      // if (res?.ok) {
-      //   router.replace("/dashboard")
-      // }
     } catch (error) {
       console.error(error)
     } finally {

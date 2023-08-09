@@ -6,7 +6,7 @@ type UserInfoProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
 }
 
-export default function UserInfo({ user }: UserInfoProps) {
+export default async function UserInfo({ user }: UserInfoProps) {
   return (
     <div className="text-center">
       <Image

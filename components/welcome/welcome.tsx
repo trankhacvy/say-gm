@@ -95,7 +95,7 @@ function ProfileForm() {
         profile_metadata_uri: uploadRes.url,
       })
       await update(updatedUser)
-      router.replace(`/u/${values.username}`)
+      router.replace(`/dashboard`)
     } catch (error: any) {
       console.error(error)
       toast({
