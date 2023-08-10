@@ -1,5 +1,10 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import { Database } from "@/types/supabase.types"
+import { IS_PROD } from "@/utils/env"
+
+const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
+const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
+const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -14,26 +19,26 @@ class Supabase {
   // users
 
   async findUserByWallet(wallet: string) {
-    const { data, error } = await this.client.from("tbl_users").select("*").eq("wallet", wallet).single()
+    const { data, error } = await this.client.from(USERS_TABLE).select("*").eq("wallet", wallet).single()
     if (!data || error) throw error
     return data
   }
 
   async findUserUsername(username: string) {
-    const { data, error } = await this.client.from("tbl_users").select("*").eq("domain_name", username).single()
+    const { data, error } = await this.client.from(USERS_TABLE).select("*").eq("domain_name", username).single()
     if (!data || error) throw error
     return data
   }
 
   async createUser(wallet: string) {
-    const { data, error } = await this.client.from("tbl_users").insert({ wallet }).select("*").single()
+    const { data, error } = await this.client.from(USERS_TABLE).insert({ wallet }).select("*").single()
     if (!data || error) throw error
     return data
   }
 
   async updateUser(wallet: string, userData: Database["public"]["Tables"]["tbl_users"]["Update"]) {
     const { data, error } = await this.client
-      .from("tbl_users")
+      .from(USERS_TABLE)
       .update(userData)
       .eq("wallet", wallet)
       .select("*")
@@ -54,7 +59,7 @@ class Supabase {
     signature: string
   ) {
     const { data, error } = await this.client
-      .from("tbl_donation")
+      .from(DONATIONS_TABLE)
       .insert({
         creator_id: creatorId,
         donator,
@@ -72,7 +77,7 @@ class Supabase {
 
   async findDonationByCreator(creator: string) {
     const { data, error } = await this.client
-      .from("tbl_donation")
+      .from(DONATIONS_TABLE)
       .select("*")
       .eq("creator_id", creator)
       .order("created_at", { ascending: false })
@@ -83,7 +88,7 @@ class Supabase {
   // memberships
   async findMembershipTierByCreator(creator: string) {
     const { data, error } = await this.client
-      .from("tbl_memberships")
+      .from(MEMBERSHIPS_TABLE)
       .select("*")
       .eq("creator_id", creator)
       .order("created_at", { ascending: false })
@@ -100,7 +105,7 @@ class Supabase {
     image: string
   ) {
     const { data, error } = await this.client
-      .from("tbl_memberships")
+      .from(MEMBERSHIPS_TABLE)
       .insert({
         creator_id: creatorId,
         name,

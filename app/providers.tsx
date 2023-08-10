@@ -9,7 +9,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SessionProvider, signOut, useSession } from "next-auth/react"
 import { ReactNode, useEffect, useMemo } from "react"
 import { useGumSDK } from "@/hooks/use-gum-sdk"
-import { SOLANA_CLUSTER } from "@/utils/env"
+import { IS_PROD, SOLANA_CLUSTER } from "@/utils/env"
 
 const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
   const { connection } = useConnection()
@@ -74,7 +74,7 @@ export default function Providers({ children }: { children: ReactNode }) {
           <UploadProviderWraper>
             <SessionProvider>
               <Wrapper>{children}</Wrapper>
-              {!!process.env.VERCEL_URL && <Analytics />}
+              {IS_PROD && <Analytics />}
             </SessionProvider>
           </UploadProviderWraper>
         </WalletModalProvider>

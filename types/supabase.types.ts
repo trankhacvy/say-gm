@@ -9,6 +9,125 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      dev_tbl_donations: {
+        Row: {
+          amount: number | null
+          created_at: string
+          creator_id: number | null
+          donator: string | null
+          id: string
+          message: string | null
+          name: string | null
+          num_of_gm: number | null
+          signature: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          creator_id?: number | null
+          donator?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          num_of_gm?: number | null
+          signature?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          creator_id?: number | null
+          donator?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          num_of_gm?: number | null
+          signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_donations_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      dev_tbl_memberships: {
+        Row: {
+          benefit: string | null
+          created_at: string
+          creator_id: number | null
+          description: string | null
+          id: string
+          image: string | null
+          name: string | null
+          price: number | null
+        }
+        Insert: {
+          benefit?: string | null
+          created_at?: string
+          creator_id?: number | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string | null
+          price?: number | null
+        }
+        Update: {
+          benefit?: string | null
+          created_at?: string
+          creator_id?: number | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string | null
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_memberships_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      dev_tbl_users: {
+        Row: {
+          created_at: string | null
+          domain_address: string | null
+          domain_name: string | null
+          id: number
+          profile_address: string | null
+          profile_metadata: Json | null
+          profile_metadata_uri: string | null
+          profile_screen_name: string | null
+          wallet: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain_address?: string | null
+          domain_name?: string | null
+          id?: number
+          profile_address?: string | null
+          profile_metadata?: Json | null
+          profile_metadata_uri?: string | null
+          profile_screen_name?: string | null
+          wallet?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain_address?: string | null
+          domain_name?: string | null
+          id?: number
+          profile_address?: string | null
+          profile_metadata?: Json | null
+          profile_metadata_uri?: string | null
+          profile_screen_name?: string | null
+          wallet?: string | null
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           expires: string
