@@ -11,6 +11,8 @@ class Supabase {
     )
   }
 
+  // users
+
   async findUserByWallet(wallet: string) {
     const { data, error } = await this.client.from("tbl_users").select("*").eq("wallet", wallet).single()
     if (!data || error) throw error
@@ -39,6 +41,8 @@ class Supabase {
     if (!data || error) throw error
     return data
   }
+
+  // donations
 
   async donate(
     donator: string,
@@ -72,6 +76,41 @@ class Supabase {
       .select("*")
       .eq("creator_id", creator)
       .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+  // memberships
+  async findMembershipTierByCreator(creator: string) {
+    const { data, error } = await this.client
+      .from("tbl_memberships")
+      .select("*")
+      .eq("creator_id", creator)
+      .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+  async createMembershipTier(
+    creatorId: number,
+    name: string,
+    description: string,
+    benefit: string,
+    price: number,
+    image: string
+  ) {
+    const { data, error } = await this.client
+      .from("tbl_memberships")
+      .insert({
+        creator_id: creatorId,
+        name,
+        description,
+        benefit,
+        price,
+        image,
+      })
+      .select("*")
+      .single()
     if (!data || error) throw error
     return data
   }

@@ -74,7 +74,7 @@ export default function Providers({ children }: { children: ReactNode }) {
           <UploadProviderWraper>
             <SessionProvider>
               <Wrapper>{children}</Wrapper>
-              <Analytics />
+              {!!process.env.VERCEL_URL && <Analytics />}
             </SessionProvider>
           </UploadProviderWraper>
         </WalletModalProvider>

@@ -80,6 +80,46 @@ export interface Database {
           }
         ]
       }
+      tbl_memberships: {
+        Row: {
+          benefit: string | null
+          created_at: string
+          creator_id: number | null
+          description: string | null
+          id: string
+          image: string | null
+          name: string | null
+          price: number | null
+        }
+        Insert: {
+          benefit?: string | null
+          created_at?: string
+          creator_id?: number | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string | null
+          price?: number | null
+        }
+        Update: {
+          benefit?: string | null
+          created_at?: string
+          creator_id?: number | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string | null
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_memberships_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tbl_users: {
         Row: {
           created_at: string | null
@@ -160,7 +200,21 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      statistic_donator_totals: {
+        Row: {
+          creator_id: number | null
+          donator: string | null
+          total_amount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_donation_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Functions: {
       uid: {

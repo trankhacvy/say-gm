@@ -18,6 +18,7 @@ import { Input } from "../ui/input"
 import { useToast } from "../ui/toast"
 import { Typography } from "../ui/typography"
 import { Uploader } from "../ui/uploader"
+import { Routes } from "@/config/routes"
 
 export default function WelcomeView() {
   return <ProfileForm />
@@ -82,7 +83,7 @@ function ProfileForm() {
         throw new Error("Error creating profile")
       }
 
-      const profile = await sdk.profile.getProfilesByProfileAccount(profilePda)
+      await sdk.profile.getProfilesByProfileAccount(profilePda)
 
       const domainAccount = await getDomainAccount(sdk, values.username)
 
@@ -95,7 +96,7 @@ function ProfileForm() {
         profile_metadata_uri: uploadRes.url,
       })
       await update(updatedUser)
-      router.replace(`/dashboard`)
+      router.replace(Routes.DASHBOARD)
     } catch (error: any) {
       console.error(error)
       toast({
