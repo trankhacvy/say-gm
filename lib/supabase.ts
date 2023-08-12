@@ -2,9 +2,9 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js"
 import { Database } from "@/types/supabase.types"
 import { IS_PROD } from "@/utils/env"
 
-const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
-const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
-const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
+export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
+export const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
+export const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -26,6 +26,12 @@ class Supabase {
 
   async findUserUsername(username: string) {
     const { data, error } = await this.client.from(USERS_TABLE).select("*").eq("domain_name", username).single()
+    if (!data || error) throw error
+    return data
+  }
+
+  async findAllUser() {
+    const { data, error } = await this.client.from(USERS_TABLE).select("*").order("domain_name", { ascending: true })
     if (!data || error) throw error
     return data
   }

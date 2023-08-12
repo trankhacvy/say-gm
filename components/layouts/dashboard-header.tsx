@@ -1,6 +1,6 @@
 "use client"
 
-import { MenuIcon } from "lucide-react"
+import { ExternalLinkIcon, MenuIcon } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,9 +9,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Typography } from "@/components/ui/typography"
 import { cn } from "@/utils/cn"
+import { Button } from "../ui/button"
 
 export function DashboardHeader() {
   const [small, setSmall] = useState(false)
+  const { data: session } = useSession()
 
   useEffect(() => {
     function handler() {
@@ -29,14 +31,24 @@ export function DashboardHeader() {
     <header
       className={cn(
         "fixed right-0 top-0 z-[40] h-16 w-full transition-[height] duration-200 ease-in-out lg:h-24 lg:w-[calc(100%-281px)]",
-        { "lg:h-[60px]": small }
+        { "bg-white/80 lg:h-[60px]": small }
       )}
     >
       <div className="relative flex h-full min-h-[56px] items-center px-4 md:min-h-[64px] md:px-6 lg:px-10">
         <IconButton className="mr-2 lg:hidden" size="sm">
           <MenuIcon />
         </IconButton>
-        <div className="flex grow items-center justify-end gap-2">
+        <div className="flex grow items-center justify-end gap-4">
+          <Button
+            // variant="link"
+            // className="underline"
+            href={`/users/${session?.user.domain_name}`}
+            target="_blank"
+            as="a"
+            endDecorator={<ExternalLinkIcon />}
+          >
+            Your Page
+          </Button>
           <AdminUserMenu />
         </div>
       </div>
@@ -50,7 +62,7 @@ function AdminUserMenu() {
     <Popover>
       <PopoverTrigger asChild>
         <button>
-          <Avatar>
+          <Avatar className="bg-gray-500/24">
             {/* @ts-ignore */}
             <AvatarImage src={session?.user.profile_metadata?.avatar} alt={session?.user.name ?? ""} />
             <AvatarFallback className="bg-primary-500 text-xl text-white">

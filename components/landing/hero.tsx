@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation"
 import { getCsrfToken, signIn, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { SigninMessage } from "@/lib/signin-message"
-import supabase from "@/lib/supabase"
 import { AspectRatio } from "../ui/aspect-ratio"
 import { Button } from "../ui/button"
 import { Typography } from "../ui/typography"
@@ -79,7 +78,7 @@ export default function Hero() {
               <span className="text-purple-700">Solana</span>
             </Typography>
             <Button loading={loading} onClick={login} size="lg" endDecorator={<ArrowRightIcon />}>
-              Start Now
+              Become a creator
             </Button>
           </div>
           <div className="relative w-1/2 px-10">

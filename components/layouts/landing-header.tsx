@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { cn } from "@/utils/cn"
 import ConnectWalletButton from "../connect-wallet-button"
+import Link from "next/link"
 
 export function LandingHeader() {
   const [small, setSmall] = useState(false)
@@ -29,9 +30,9 @@ export function LandingHeader() {
       }}
     >
       <div className="relative mx-auto flex h-full min-h-[56px] w-full max-w-screen-xl items-center justify-between px-4 md:min-h-[64px] md:px-6 lg:px-10">
-        <a href="/" className="text-3xl font-bold text-primary-500 underline">
-          OPOS
-        </a>
+        <Link href="/" className="text-3xl font-bold text-primary-500 underline">
+          gm
+        </Link>
 
         <div className="flex grow items-center justify-end gap-2">
           <ConnectWalletButton />

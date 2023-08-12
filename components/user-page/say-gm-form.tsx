@@ -11,20 +11,21 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import ConnectWalletButton from "../connect-wallet-button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { USD_PER_GM } from "@/config/donation"
 import { Database } from "@/types/supabase.types"
 import { getTransferTransaction } from "@/lib/solana"
 import { PublicKey } from "@solana/web3.js"
 import supabase from "@/lib/supabase"
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle"
+import { formatCurrency } from "@/utils/currency"
+import Pyth from "@/utils/pyth"
 
 type SayGMFormProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
 }
 
 const formSchema = z.object({
-  numOfGum: z.number().min(1).max(5),
-  name: z.string().trim(),
+  numOfGm: z.number().min(1).max(10),
   message: z.string().trim().optional(),
 })
 
@@ -36,20 +37,26 @@ export default function SayGMForm({ user }: SayGMFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      numOfGum: 1,
-      name: "",
+      numOfGm: 1,
       message: "",
     },
   })
 
-  const { control, formState, reset } = form
+  const { control, formState, reset, watch } = form
+  const wTimes = watch("numOfGm")
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (!publicKey || !user.wallet) return
 
-      // TODO convert USD to SOL
-      const tx = getTransferTransaction(publicKey, new PublicKey(user.wallet), values.numOfGum / 100)
+      const { solUsdPrice } = await Pyth.getSolUsdPrice()
+
+      if (!solUsdPrice) throw new Error("Unknow error :(")
+
+      const usdAmount = values.numOfGm * USD_PER_GM
+      const solAmount = usdAmount / solUsdPrice
+
+      const tx = getTransferTransaction(publicKey, new PublicKey(user.wallet), solAmount)
 
       const signature = await sendTransaction(tx, connection)
       await connection.confirmTransaction(signature, "processed")
@@ -57,10 +64,10 @@ export default function SayGMForm({ user }: SayGMFormProps) {
       await supabase.donate(
         publicKey.toBase58(),
         user.id,
-        values.name,
+        "",
         values.message ?? "",
-        values.numOfGum,
-        values.numOfGum / 100,
+        values.numOfGm,
+        usdAmount,
         signature
       )
       reset()
@@ -88,38 +95,61 @@ export default function SayGMForm({ user }: SayGMFormProps) {
         <div className="flex flex-col gap-5 pb-4 pt-6">
           <FormField
             control={control}
-            name="numOfGum"
+            name="numOfGm"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="basis-1/2">
+                <FormLabel className="text-gray-600">Times</FormLabel>
                 <FormControl>
-                  <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select times" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4} className="!w-[var(--radix-select-trigger-width)]">
-                      <SelectItem value="1">One time (${USD_PER_GM * 1})</SelectItem>
-                      <SelectItem value="3">Three times (${USD_PER_GM * 3})</SelectItem>
-                      <SelectItem value="5">Five times (${USD_PER_GM * 5})</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-4">
+                    <ToggleGroup
+                      className="!flex"
+                      type="single"
+                      aria-label="Time"
+                      {...field}
+                      value={String(field.value)}
+                      onValueChange={(value) => field.onChange(Number(value))}
+                    >
+                      <ToggleGroupItem
+                        className="min-w-[60px]"
+                        size="sm"
+                        variant="outline"
+                        value={"1"}
+                        aria-label="one times"
+                      >
+                        One time
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        className="min-w-[60px]"
+                        size="sm"
+                        variant="outline"
+                        value={"3"}
+                        aria-label="3 time"
+                      >
+                        3 Times
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        className="min-w-[60px]"
+                        size="sm"
+                        variant="outline"
+                        value={"5"}
+                        aria-label="5 times"
+                      >
+                        5 Time
+                      </ToggleGroupItem>
+                      <ToggleGroupItem size="sm" variant="outline" value={"10"} aria-label="10 times">
+                        10 Times
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <Typography className="font-semibold" color="primary" as="span">
+                      ({formatCurrency(USD_PER_GM * wTimes, {})})
+                    </Typography>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Your nickname</FormLabel>
-                <FormControl>
-                  <Input fullWidth placeholder="Enter your nickname" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           <FormField
             control={control}
             name="message"

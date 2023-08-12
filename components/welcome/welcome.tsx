@@ -12,13 +12,17 @@ import * as z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import Supabase from "@/lib/supabase"
 import ConnectWalletButton from "../connect-wallet-button"
-import { AspectRatio } from "../ui/aspect-ratio"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useToast } from "../ui/toast"
 import { Typography } from "../ui/typography"
-import { Uploader } from "../ui/uploader"
 import { Routes } from "@/config/routes"
+import { useState } from "react"
+import { AvatarUploader } from "../avatar-uploader"
+import { useGetNFTsByOwner } from "@/hooks/use-get-nfts-by-owner"
+import { AspectRatio } from "../ui/aspect-ratio"
+import { Skeleton } from "../ui/skeleton"
+import { cn } from "@/utils/cn"
 
 export default function WelcomeView() {
   return <ProfileForm />
@@ -39,6 +43,16 @@ function ProfileForm() {
   const { sdk } = useGumContext()
   const { createProfileWithDomain } = useCreateProfile(sdk)
   const { update } = useSession()
+  const [step, setStep] = useState<"default" | "upload" | "create-profile">("default")
+  const [selectedNft, setSelectedNft] = useState("")
+
+  const { data: nfts, isLoading } = useGetNFTsByOwner(publicKey?.toBase58())
+
+  const submitButtonTextMap = {
+    default: "Create",
+    upload: "Uploading profile",
+    "create-profile": "Creating profile",
+  }
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -49,7 +63,7 @@ function ProfileForm() {
     },
   })
 
-  const { control, formState, setError } = form
+  const { control, formState, setValue, setError } = form
 
   const { toast } = useToast()
 
@@ -63,7 +77,8 @@ function ProfileForm() {
         throw new Error("Username already exist")
       }
 
-      const avatarUpload = await Supabase.uploadFile(`${new Date().getTime()}`, values.avatar)
+      setStep("upload")
+      const avatarUpload = await Supabase.uploadFile(`avatar/${new Date().getTime()}`, values.avatar)
 
       if (!avatarUpload.data?.publicUrl) throw new Error("Error uploading avatar")
 
@@ -77,6 +92,14 @@ function ProfileForm() {
       if (!uploadRes) {
         throw new Error("Error uploading profile metadata")
       }
+
+      setStep("create-profile")
+
+      await new Promise((resolve: any) => {
+        setTimeout(() => {
+          resolve()
+        }, 3000)
+      })
 
       const profilePda = await createProfileWithDomain(uploadRes.url, values.username, publicKey)
       if (!profilePda) {
@@ -114,32 +137,76 @@ function ProfileForm() {
             Create profile
           </Typography>
           <div className="space-y-5">
-            <FormField
-              control={control}
-              name="avatar"
-              render={({ field }) => (
-                <FormItem className="w-full max-w-[240px]">
-                  <FormLabel>Avatar</FormLabel>
-                  <AspectRatio ratio={1 / 1}>
-                    <Uploader
-                      {...field}
-                      className="h-full"
-                      maxFiles={1}
-                      accept={{
-                        "image/png": [".png"],
-                        "image/jpeg": [".jpg", ".jpeg"],
-                      }}
-                      onExceedFileSize={() => setError("avatar", { message: "Max file size is 5MB" })}
-                      value={field.value ? [field.value] : []}
-                      onChange={(files) => {
-                        field.onChange(files?.[0])
-                      }}
-                    />
-                  </AspectRatio>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <FormField
+                  control={control}
+                  name="avatar"
+                  render={({ field }) => (
+                    <FormItem className="ww-full">
+                      <FormLabel>Avatar</FormLabel>
+                      <AvatarUploader
+                        {...field}
+                        className="h-full"
+                        accept={{
+                          "image/png": [".png"],
+                          "image/jpeg": [".jpg", ".jpeg"],
+                        }}
+                        onExceedFileSize={() => setError("avatar", { message: "Max file size is 5MB" })}
+                        value={field.value}
+                        onChange={(file) => {
+                          field.onChange(file)
+                          setSelectedNft("")
+                        }}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="h-full w-full flex-1">
+                <Typography className="text-sm font-medium">Use NFT as avatar</Typography>
+                <div className="grid max-h-[276px] grid-cols-2 gap-4 overflow-auto px-2 pt-2">
+                  {isLoading ? (
+                    Array.from({ length: 10 }).map((_, id) => (
+                      <AspectRatio key={id}>
+                        <Skeleton className="h-full w-full rounded-xl" />
+                      </AspectRatio>
+                    ))
+                  ) : (
+                    <>
+                      {nfts?.length === 0 ? (
+                        <Typography className="text-center font-semibold" color="secondary">
+                          No NFT
+                        </Typography>
+                      ) : (
+                        nfts?.map((nft) => (
+                          <button
+                            className={cn("w-full overflow-hidden rounded-xl", {
+                              "shadow-[rgb(33,43,54)_0px_0px_0px_2px]": selectedNft === nft.mint,
+                            })}
+                            key={nft.mint}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              setValue("avatar", nft.image_uri)
+                              setSelectedNft(nft.mint)
+                            }}
+                          >
+                            <AspectRatio>
+                              <img
+                                className="h-auto w-full rounded-xl object-cover"
+                                src={nft.cached_image_uri ?? nft.image_uri}
+                                alt={nft.name}
+                              />
+                            </AspectRatio>
+                          </button>
+                        ))
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
 
             <FormField
               control={control}
@@ -186,7 +253,7 @@ function ProfileForm() {
             <div className="flex justify-end">
               {publicKey ? (
                 <Button type="submit" loading={formState.isSubmitting}>
-                  Create
+                  {submitButtonTextMap[step]}
                 </Button>
               ) : (
                 <ConnectWalletButton />
