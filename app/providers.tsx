@@ -36,6 +36,8 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
   const { data, status } = useSession()
 
   useEffect(() => {
+    if (process.env.NODE_ENV === "development") return
+
     if (status === "authenticated") {
       if (!publicKey) {
         signOut()

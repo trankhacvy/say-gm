@@ -9,18 +9,18 @@ import { formatCurrency } from "@/utils/currency"
 import { IconButton } from "../ui/icon-button"
 
 type TierItemProps = {
-  tier: Database["public"]["Tables"]["tbl_memberships"]["Row"]
+  tier: Database["public"]["Tables"]["tbl_memberships_tiers"]["Row"]
 }
 
 export default function TierItem({ tier }: TierItemProps) {
   return (
-    <div className="flex items-start gap-4 overflow-hidden rounded-2xl border border-gray-500/16">
-      <div className="w-[120px]">
-        <AspectRatio>
+    <div className="flex items-center gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-card">
+      <div className="w-[80px]">
+        <AspectRatio className="overflow-hidden rounded-xl bg-gray-500/24">
           <Image src={tier.image ?? ""} fill alt={tier.name ?? ""} />
         </AspectRatio>
       </div>
-      <div className="flex-1 p-4">
+      <div className="flex-1">
         <Typography as="h4" level="body2" className="font-semibold">
           {tier.name}
         </Typography>

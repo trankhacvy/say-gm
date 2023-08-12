@@ -4,7 +4,7 @@ import { IS_PROD } from "@/utils/env"
 
 export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
 export const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
-export const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
+export const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -108,7 +108,9 @@ class Supabase {
     description: string,
     benefit: string,
     price: number,
-    image: string
+    image: string,
+    address: string,
+    signature: string
   ) {
     const { data, error } = await this.client
       .from(MEMBERSHIPS_TABLE)
@@ -119,6 +121,8 @@ class Supabase {
         benefit,
         price,
         image,
+        mint_address: address,
+        signature,
       })
       .select("*")
       .single()
