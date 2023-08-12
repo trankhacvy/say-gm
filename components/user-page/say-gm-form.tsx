@@ -85,6 +85,8 @@ export default function SayGMForm({ user }: SayGMFormProps) {
     }
   }
 
+  if (publicKey && publicKey.toBase58() === user.wallet) return null
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full rounded-2xl bg-white p-6 shadow-card">

@@ -8,9 +8,14 @@ import Membership from "@/components/user-page/membership"
 
 export async function generateMetadata({ params }: { params: { username: string } }) {
   const user = await Supabase.findUserUsername(params.username)
+  if (!user) {
+    return constructMetadata({
+      title: "Page not found",
+    })
+  }
 
   // @ts-ignore
-  const title = `${user.profile_metadata?.name ?? user.domain_name}`
+  const title = `${user?.profile_metadata?.name ?? user?.domain_name}`
   const description = `Say gm to ${title}`
 
   return constructMetadata({
@@ -23,7 +28,7 @@ export default async function UserPage({ params }: { params: { username: string 
   const user = await Supabase.findUserUsername(params.username)
 
   if (!user) {
-    notFound()
+    return notFound()
   }
 
   return (

@@ -52,6 +52,40 @@ export interface Database {
           }
         ]
       }
+      dev_tbl_memberships: {
+        Row: {
+          created_at: string
+          id: string
+          member: string | null
+          mint_address: string | null
+          signature: string | null
+          tier_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member?: string | null
+          mint_address?: string | null
+          signature?: string | null
+          tier_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member?: string | null
+          mint_address?: string | null
+          signature?: string | null
+          tier_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_memberships_tier_id_fkey"
+            columns: ["tier_id"]
+            referencedRelation: "dev_tbl_memberships_tiers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       dev_tbl_memberships_tiers: {
         Row: {
           benefit: string | null
@@ -205,6 +239,40 @@ export interface Database {
           }
         ]
       }
+      tbl_memberships: {
+        Row: {
+          created_at: string
+          id: string
+          member: string | null
+          mint_address: string | null
+          signature: string | null
+          tier_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member?: string | null
+          mint_address?: string | null
+          signature?: string | null
+          tier_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member?: string | null
+          mint_address?: string | null
+          signature?: string | null
+          tier_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_memberships_tier_id_fkey"
+            columns: ["tier_id"]
+            referencedRelation: "dev_tbl_memberships_tiers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tbl_memberships_tiers: {
         Row: {
           benefit: string | null
@@ -213,8 +281,10 @@ export interface Database {
           description: string | null
           id: string
           image: string | null
+          mint_address: string | null
           name: string | null
           price: number | null
+          signature: string | null
         }
         Insert: {
           benefit?: string | null
@@ -223,8 +293,10 @@ export interface Database {
           description?: string | null
           id?: string
           image?: string | null
+          mint_address?: string | null
           name?: string | null
           price?: number | null
+          signature?: string | null
         }
         Update: {
           benefit?: string | null
@@ -233,8 +305,10 @@ export interface Database {
           description?: string | null
           id?: string
           image?: string | null
+          mint_address?: string | null
           name?: string | null
           price?: number | null
+          signature?: string | null
         }
         Relationships: [
           {

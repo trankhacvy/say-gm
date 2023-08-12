@@ -28,6 +28,7 @@
     "@gumhq/sdk": "^3.0.1",
     "@hookform/resolvers": "^3.1.1",
     "@metaplex-foundation/js": "^0.19.4",
+    "@metaplex-foundation/js-plugin-nft-storage": "^0.19.4",
     "@next/bundle-analyzer": "^13.3.0",
     "@project-serum/anchor": "^0.26.0",
     "@pythnetwork/client": "^2.19.0",

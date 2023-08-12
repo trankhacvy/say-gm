@@ -4,7 +4,8 @@ import { IS_PROD } from "@/utils/env"
 
 export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
 export const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
-export const MEMBERSHIPS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
+export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
+export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -26,7 +27,7 @@ class Supabase {
 
   async findUserUsername(username: string) {
     const { data, error } = await this.client.from(USERS_TABLE).select("*").eq("domain_name", username).single()
-    if (!data || error) throw error
+    if (!data || error) return null
     return data
   }
 
@@ -91,10 +92,10 @@ class Supabase {
     return data
   }
 
-  // memberships
+  // membership tiers
   async findMembershipTierByCreator(creator: string) {
     const { data, error } = await this.client
-      .from(MEMBERSHIPS_TABLE)
+      .from(MEMBERSHIP_TIERS_TABLE)
       .select("*")
       .eq("creator_id", creator)
       .order("created_at", { ascending: false })
@@ -113,7 +114,7 @@ class Supabase {
     signature: string
   ) {
     const { data, error } = await this.client
-      .from(MEMBERSHIPS_TABLE)
+      .from(MEMBERSHIP_TIERS_TABLE)
       .insert({
         creator_id: creatorId,
         name,
@@ -130,6 +131,23 @@ class Supabase {
     return data
   }
 
+  // memberships
+  async createMembership(tierId: string, member: string, address: string, signature: string) {
+    const { data, error } = await this.client
+      .from(MEMBERSHIP_TABLE)
+      .insert({
+        tier_id: tierId,
+        member,
+        mint_address: address,
+        signature,
+      })
+      .select("*")
+      .single()
+    if (!data || error) throw error
+    return data
+  }
+
+  // misc
   uploadFile = async (filename: string, file: File) => {
     const { data, error } = await this.client.storage.from("minions").upload(filename, file, {
       upsert: true,
