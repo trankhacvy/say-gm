@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import {
@@ -22,6 +23,10 @@ import { AspectRatio } from "../ui/aspect-ratio"
 import { Uploader } from "../ui/uploader"
 import supabase from "@/lib/supabase"
 import { useSession } from "next-auth/react"
+import shyft from "@/lib/shyft"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
+import { Keypair } from "@solana/web3.js"
+import ConnectWalletButton from "../connect-wallet-button"
 
 type NewTierDialogProps = {
   trigger: React.ReactNode
@@ -41,6 +46,9 @@ const formSchema = z.object({
 export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewTierDialogProps) => {
   const { toast } = useToast()
   const { data: session } = useSession()
+  const wallet = useWallet()
+  const { publicKey, sendTransaction } = wallet
+  const { connection } = useConnection()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,12 +62,45 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      if (!publicKey) return
+
       const imageUrl = (await supabase.uploadFile(`${session?.user.id!}/${Date.now()}.png`, values.image)).data
         ?.publicUrl
 
-      if (!imageUrl) {
-        throw new Error("Upload error.")
-      }
+      if (!imageUrl) throw new Error("Upload error")
+
+      const uploadResult = await shyft.uploadMetadata({
+        creator: publicKey.toBase58(),
+        image: imageUrl,
+        name: values.name,
+        symbol: values.name.substring(0, 6).toUpperCase(),
+        description: values.description ?? "",
+        attributes: [
+          {
+            trait_type: "tier",
+            value: values.name,
+          },
+        ],
+      })
+
+      if (!uploadResult) throw new Error("Upload error")
+
+      const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
+
+      const mint = Keypair.generate()
+
+      const tx = await metaplex
+        .nfts()
+        .builders()
+        .create({
+          useNewMint: mint,
+          name: values.name,
+          symbol: values.name.substring(0, 6).toUpperCase(),
+          sellerFeeBasisPoints: 0,
+          uri: uploadResult.uri,
+        })
+
+      const txResult = await metaplex.rpc().sendAndConfirmTransaction(tx, {}, [mint])
 
       await supabase.createMembershipTier(
         session?.user.id!,
@@ -67,7 +108,9 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
         values.description ?? "",
         values.benefit ?? "",
         values.price,
-        imageUrl
+        imageUrl,
+        mint.publicKey.toBase58(),
+        txResult.signature
       )
 
       onSuccess?.()
@@ -200,9 +243,13 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
               />
 
               <AlertDialogFooter>
-                <Button loading={form.formState.isSubmitting} type="submit" fullWidth>
-                  Create
-                </Button>
+                {publicKey ? (
+                  <Button loading={form.formState.isSubmitting} type="submit" fullWidth>
+                    Create
+                  </Button>
+                ) : (
+                  <ConnectWalletButton />
+                )}
               </AlertDialogFooter>
             </form>
           </Form>

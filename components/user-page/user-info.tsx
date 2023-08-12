@@ -1,14 +1,13 @@
 import Image from "next/image"
 import { Database } from "@/types/supabase.types"
 import { Typography } from "../ui/typography"
-import { Button } from "../ui/button"
-import { Share2Icon } from "lucide-react"
+import ShareButton from "./share-button"
 
 type UserInfoProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
 }
 
-export default async function UserInfo({ user }: UserInfoProps) {
+export default function UserInfo({ user }: UserInfoProps) {
   return (
     <div className="flex w-full items-center justify-between gap-10">
       <div className="flex items-center gap-5">
@@ -33,7 +32,7 @@ export default async function UserInfo({ user }: UserInfoProps) {
           </Typography>
         </div>
       </div>
-      <Button endDecorator={<Share2Icon />}>Share</Button>
+      <ShareButton user={user} />
     </div>
   )
 }

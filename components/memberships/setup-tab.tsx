@@ -37,7 +37,7 @@ export default function SetupTab() {
   }
 
   return (
-    <div className="space-y-5 px-4 pb-8 pt-4">
+    <div className="space-y-5 pb-8 pt-4">
       <div className="flex justify-end">
         <NewTierDialog
           isOpen={isOpen}
