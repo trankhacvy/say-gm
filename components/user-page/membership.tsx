@@ -31,7 +31,7 @@ export default function Membership({ user }: MembershipProps) {
   return (
     <>
       {isLoading ? (
-        <div className="grid w-full grid-cols-3 gap-10">
+        <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="w-full rounded-2xl bg-gray-200 p-4">
               <AspectRatio className="rounded-2xl">
@@ -52,7 +52,7 @@ export default function Membership({ user }: MembershipProps) {
               </Typography>
             </div>
           ) : (
-            <div className="grid w-full grid-cols-3 gap-10">
+            <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
               {membershipTiers?.map((item) => (
                 <MembershipCard
                   key={item.id}
@@ -184,7 +184,7 @@ const MembershipCard = ({
         {!hideAction && (
           <>
             {publicKey ? (
-              <Button loading={loading} onClick={handleJoin} fullWidth color="primary">
+              <Button loading={loading} onClick={handleJoin} fullWidth>
                 Join
               </Button>
             ) : (

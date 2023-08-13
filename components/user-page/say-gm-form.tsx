@@ -100,11 +100,16 @@ export default function SayGMForm({ user }: SayGMFormProps) {
             name="numOfGm"
             render={({ field }) => (
               <FormItem className="basis-1/2">
-                <FormLabel className="text-gray-600">Times</FormLabel>
+                <FormLabel className="flex items-center gap-2 text-gray-600">
+                  Times
+                  <Typography className="font-bold" color="primary" as="span">
+                    ({formatCurrency(USD_PER_GM * wTimes, {})})
+                  </Typography>
+                </FormLabel>
                 <FormControl>
                   <div className="flex items-center gap-4">
                     <ToggleGroup
-                      className="!flex"
+                      className="!flex flex-wrap"
                       type="single"
                       aria-label="Time"
                       {...field}
@@ -112,7 +117,7 @@ export default function SayGMForm({ user }: SayGMFormProps) {
                       onValueChange={(value) => field.onChange(Number(value))}
                     >
                       <ToggleGroupItem
-                        className="min-w-[60px]"
+                        className="min-w-[100px]"
                         size="sm"
                         variant="outline"
                         value={"1"}
@@ -121,7 +126,7 @@ export default function SayGMForm({ user }: SayGMFormProps) {
                         One time
                       </ToggleGroupItem>
                       <ToggleGroupItem
-                        className="min-w-[60px]"
+                        className="min-w-[100px]"
                         size="sm"
                         variant="outline"
                         value={"3"}
@@ -130,7 +135,7 @@ export default function SayGMForm({ user }: SayGMFormProps) {
                         3 Times
                       </ToggleGroupItem>
                       <ToggleGroupItem
-                        className="min-w-[60px]"
+                        className="min-w-[100px]"
                         size="sm"
                         variant="outline"
                         value={"5"}
@@ -142,9 +147,6 @@ export default function SayGMForm({ user }: SayGMFormProps) {
                         10 Times
                       </ToggleGroupItem>
                     </ToggleGroup>
-                    <Typography className="font-semibold" color="primary" as="span">
-                      ({formatCurrency(USD_PER_GM * wTimes, {})})
-                    </Typography>
                   </div>
                 </FormControl>
                 <FormMessage />

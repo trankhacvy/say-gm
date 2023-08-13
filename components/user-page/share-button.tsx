@@ -37,7 +37,7 @@ export default function ShareButton({ user }: ShareButtonProps) {
   }
 
   return (
-    <Button onClick={handleShareWebView} endDecorator={<Share2Icon />}>
+    <Button className="h-9 md:h-10" onClick={handleShareWebView} endDecorator={<Share2Icon />}>
       Share
     </Button>
   )

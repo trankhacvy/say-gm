@@ -13,12 +13,12 @@ export default function Creators() {
   const { data: users } = useSWR("explore-creators", () => supabase.findAllUser())
 
   return (
-    <div className="relative bg-gray-500/5 py-32">
+    <div className="relative bg-gray-500/5 px-4 py-20 md:px-6 lg:px-10 lg:py-28">
       <div className="mx-auto max-w-screen-xl">
-        <Typography as="h2" level="h3" className="mb-20 text-center font-bold">
+        <Typography as="h2" className="mb-10 md:mb-20 text-center font-bold text-[2.5rem] md:text-5xl lg:text-6xl">
           Created for Creators
         </Typography>
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
           {users?.map((user) => (
             <CreatorCard creator={user} />
           ))}

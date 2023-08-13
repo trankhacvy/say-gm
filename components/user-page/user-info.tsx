@@ -9,10 +9,9 @@ type UserInfoProps = {
 
 export default function UserInfo({ user }: UserInfoProps) {
   return (
-    <div className="flex w-full items-center justify-between gap-10">
-      <div className="flex items-center gap-5">
-        {/* <AspectRatio className="w-[160px] overflow-hidden"> */}
-        <div className="relative aspect-square h-[160px] w-[160px] overflow-hidden rounded-full bg-gray-500/24">
+    <div className="flex w-full items-center justify-between gap-4">
+      <div className="flex flex-1 items-center gap-4 md:gap-6">
+        <div className="relative aspect-square h-[80px] w-[80px] overflow-hidden rounded-full bg-gray-500/24 md:h-[160px] md:w-[160px]">
           <Image
             // @ts-ignore
             alt={user.profile_metadata?.name}
@@ -21,9 +20,8 @@ export default function UserInfo({ user }: UserInfoProps) {
             fill
           />
         </div>
-        {/* </AspectRatio> */}
-        <div className="">
-          <Typography as="h2" level="h6" className="mt-4 font-bold">
+        <div>
+          <Typography as="h2" className="text-base font-bold md:text-xl lg:text-2xl">
             {/* @ts-ignore */}
             {user.profile_metadata?.name}
           </Typography>

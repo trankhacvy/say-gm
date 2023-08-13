@@ -31,7 +31,7 @@ export default function UserTabs({ user }: UserTabsProps) {
 
   return (
     <Tabs defaultValue="about" value={activeTab} onValueChange={handleTabChange} className="mt-10 w-full">
-      <TabsList className="w-full shadow-[rgba(145,158,171,0.24)_0px_-2px_0px_0px_inset]">
+      <TabsList className="w-full overflow-auto shadow-[rgba(145,158,171,0.24)_0px_-2px_0px_0px_inset]">
         <TabsTrigger className="px-3 py-4" value="about">
           About
         </TabsTrigger>

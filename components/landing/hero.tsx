@@ -12,6 +12,7 @@ import { SigninMessage } from "@/lib/signin-message"
 import { AspectRatio } from "../ui/aspect-ratio"
 import { Button } from "../ui/button"
 import { Typography } from "../ui/typography"
+import { Routes } from "@/config/routes"
 
 export default function Hero() {
   const wallet = useWallet()
@@ -24,7 +25,7 @@ export default function Hero() {
   const login = async () => {
     try {
       if (session) {
-        router.push(`/dashboard`)
+        router.push(Routes.DASHBOARD)
         return
       }
       if (!wallet.connected) {
@@ -50,7 +51,7 @@ export default function Hero() {
       const res = await signIn("credentials", {
         message: JSON.stringify(message),
         signature: serializedSignature,
-        callbackUrl: "/dashboard",
+        callbackUrl: Routes.DASHBOARD,
       })
     } catch (error) {
       console.error(error)
@@ -67,12 +68,12 @@ export default function Hero() {
 
   return (
     <div className="bg-image-blur relative">
-      <div className="mx-auto flex min-h-screen max-w-screen-xl items-center px-4 py-28 md:px-6 lg:px-10">
-        <div className="-mx-10 flex w-full flex-wrap items-center">
-          <div className="w-1/2 px-10">
+      <div className="mx-auto flex min-h-screen max-w-screen-xl items-center px-4 py-20 md:px-6 lg:px-10 lg:py-28">
+        <div className="flex w-full flex-wrap items-center gap-10">
+          <div className="w-full text-center lg:flex-1 lg:text-left">
             <Typography
               as="h1"
-              className="mb-10 text-xl font-extrabold !leading-snug tracking-widest md:text-5xl lg:text-6xl xl:text-[64px]"
+              className="mb-10 text-[2.5rem] font-extrabold !leading-snug tracking-widest md:text-5xl lg:text-6xl xl:text-[64px]"
             >
               Say <span className="text-primary-500 underline">gm</span> to <br /> Your Fans <br /> On{" "}
               <span className="text-purple-700">Solana</span>
@@ -81,7 +82,7 @@ export default function Hero() {
               Become a creator
             </Button>
           </div>
-          <div className="relative w-1/2 px-10">
+          <div className="relative w-full lg:flex-1">
             <AspectRatio>
               <Image src="/assets/hero.png" fill alt="hero" />
             </AspectRatio>
