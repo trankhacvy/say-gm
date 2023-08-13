@@ -30,9 +30,6 @@ export default function UserInfo({ user }: UserInfoProps) {
           <Typography as="span" level="body4" color="secondary" className="mt-2">
             @{user.domain_name}
           </Typography>
-          <Typography as="span" level="body4" color="secondary" className="mt-2">
-            {user.wallet}
-          </Typography>
         </div>
       </div>
       <ShareButton user={user} />
