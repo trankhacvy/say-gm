@@ -8,7 +8,7 @@ import dayjs from "dayjs"
 import { getUserAvatar } from "@/utils/common"
 
 type FeedItemProps = {
-  donation: Database["public"]["Tables"]["tbl_donation"]["Row"]
+  donation: Database["public"]["Tables"]["tbl_donations"]["Row"]
 }
 
 export default function FeedItem({ donation }: FeedItemProps) {
