@@ -17,7 +17,7 @@ const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
   return (
     <GumProvider sdk={sdk}>
       <UploaderProvider
-        uploaderType={SOLANA_CLUSTER === "devnet" ? "arweave" : "genesysgo"}
+        uploaderType={"arweave"}
         connection={connection}
         cluster={SOLANA_CLUSTER as "devnet" | "mainnet-beta"}
       >
