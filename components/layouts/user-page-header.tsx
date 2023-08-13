@@ -19,7 +19,7 @@ import { SigninMessage } from "@/lib/signin-message"
 import Link from "next/link"
 import { Routes } from "@/config/routes"
 import GmLogo from "../gm-logo"
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription } from "../ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetHeader } from "../ui/sheet"
 
 export function UserPageHeader() {
   const [small, setSmall] = useState(false)
@@ -43,9 +43,7 @@ export function UserPageHeader() {
       })}
     >
       <div className="relative mx-auto flex h-full min-h-[56px] w-full max-w-screen-xl items-center px-4 md:min-h-[64px] md:px-6 lg:px-10">
-        <Link href="/" className="underline">
-          <GmLogo className="text-7xl" />
-        </Link>
+        <GmLogo className="text-7xl" href="/" />
 
         <div className="flex grow items-center justify-end gap-4">
           <AdminUserMenu />
@@ -227,9 +225,7 @@ const NavMobile = ({ trigger }: { trigger: React.ReactNode }) => {
       <SheetTrigger asChild>{trigger}</SheetTrigger>
       <SheetContent position="right" className="w-[80%]">
         <SheetHeader>
-          <Link href="/" className="underline">
-            <GmLogo className="text-7xl" />
-          </Link>
+          <GmLogo className="text-7xl" href="/" />
         </SheetHeader>
         <div className="flex flex-col gap-4 py-10">
           {status === "unauthenticated" && (

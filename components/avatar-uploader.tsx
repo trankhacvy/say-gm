@@ -113,7 +113,7 @@ export const AvatarUploader = forwardRef<HTMLDivElement, AvatarUploaderProps>((p
         </div>
       </AspectRatio>
       <Typography color="secondary" className="text-center" level="body5">
-        Allowed *.jpeg, *.jpg, *.png, *.gif max size of 3.1 MB
+        Allowed *.jpeg, *.jpg, *.png max size of 5 MB
       </Typography>
     </div>
   )

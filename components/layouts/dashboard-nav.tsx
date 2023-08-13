@@ -7,6 +7,7 @@ import { Typography } from "@/components/ui/typography"
 import { Routes } from "@/config/routes"
 import { cn } from "@/utils/cn"
 import GmLogo from "../gm-logo"
+import { Sheet, SheetTrigger, SheetContent, SheetHeader } from "../ui/sheet"
 
 const NavItems = [
   {
@@ -48,9 +49,7 @@ export const DashboardNav = () => {
     <nav className="hidden w-[280px] shrink-0 lg:block">
       <div className="fixed left-0 top-0 z-0 h-full w-[280px] overflow-y-auto border-r border-dashed border-r-gray-500/24">
         <div className="mb-4 px-5 py-6">
-          <Link href={Routes.DASHBOARD}>
-            <GmLogo className="text-7xl" />
-          </Link>
+          <GmLogo className="text-7xl" href={Routes.DASHBOARD} />
         </div>
         <div className="flex h-96 flex-col">
           <ul className="relative px-4">
@@ -106,5 +105,31 @@ const NavItem = ({ text, href, selected, icon }: NavItemProps) => {
         </Typography>
       </div>
     </Link>
+  )
+}
+
+export const DashboardNavMobile = ({ trigger }: { trigger: React.ReactNode }) => {
+  const pathname = usePathname() ?? ""
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetContent position="left" className="w-full max-w-sm">
+        <SheetHeader>
+          <GmLogo className="text-7xl" href={Routes.DASHBOARD} />
+        </SheetHeader>
+        <div className="flex flex-col gap-4 py-10">
+          {NavItems.map((item) => (
+            <NavItem
+              key={item.text}
+              text={item.text}
+              href={item.href}
+              selected={item.href === "/" ? pathname === item.href : pathname.startsWith(item.href)}
+              icon={item.icon}
+            />
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }

@@ -1,6 +1,5 @@
 import { GRAPHQL_ENDPOINTS, GUM_TLD_ACCOUNT, GumDecodedProfile, SDK } from "@gumhq/sdk"
 import * as anchor from "@project-serum/anchor"
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
 import { clusterApiUrl, PublicKey } from "@solana/web3.js"
 import { GraphQLClient } from "graphql-request"
 import { keccak_256 } from "js-sha3"
@@ -10,15 +9,14 @@ class GumService {
   sdk: SDK
 
   constructor() {
-    const network = WalletAdapterNetwork.Devnet
     const graphqlEndpoint = GRAPHQL_ENDPOINTS[SOLANA_CLUSTER as keyof typeof GRAPHQL_ENDPOINTS]
     const gqlClient = new GraphQLClient(graphqlEndpoint)
 
     this.sdk = new SDK(
       null as any,
-      new anchor.web3.Connection(clusterApiUrl(network), "processed"),
+      new anchor.web3.Connection(clusterApiUrl(SOLANA_CLUSTER), "processed"),
       { preflightCommitment: "processed" },
-      network,
+      SOLANA_CLUSTER,
       gqlClient as any
     )
   }
@@ -55,10 +53,6 @@ class GumService {
       return null
     }
   }
-
-  // async createProfile(domain: string, metadataUri: string) {
-  //   this.sdk.nameserviceProgram.methods.createNameRecord
-  // }
 }
 
 export default new GumService()
