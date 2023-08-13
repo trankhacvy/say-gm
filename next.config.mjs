@@ -7,15 +7,12 @@ import withPlugins from "next-compose-plugins"
 const config = withPlugins([[withBundleAnalyzer({ enabled: false })]], {
   reactStrictMode: true,
   images: {
-    // domains: ["api-prod-minimal-v510.vercel.app", "phxfamlbmycvwkfohlxz.supabase.co"],
-    images: {
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: "**",
-        },
-      ],
-    },
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
   webpack: (config) => {
     config.externals.push("pino-pretty", "lokijs")
