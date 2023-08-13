@@ -1,7 +1,5 @@
 import { WebBundlr } from "@bundlr-network/client"
-import BigNumber from "bignumber.js"
-import { LAMPORTS_PER_SOL, clusterApiUrl } from "@solana/web3.js"
-import { SOLANA_CLUSTER } from "@/utils/env"
+import { SOLANA_CLUSTER, SOLANA_PRC } from "@/utils/env"
 import { WalletContextState } from "@solana/wallet-adapter-react"
 
 const BUNDLR_URL = SOLANA_CLUSTER === "devnet" ? "https://devnet.bundlr.network" : "https://node2.bundlr.network"
@@ -11,7 +9,7 @@ class ArweaveStorage {
 
   async initializeBundlr(wallet: WalletContextState) {
     const newBundlr = new WebBundlr(BUNDLR_URL, "solana", wallet, {
-      providerUrl: clusterApiUrl(SOLANA_CLUSTER),
+      providerUrl: SOLANA_PRC,
     })
     await newBundlr.ready()
     return newBundlr
