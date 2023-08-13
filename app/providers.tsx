@@ -4,12 +4,11 @@ import { GumProvider, UploaderProvider } from "@gumhq/react-sdk"
 import { ConnectionProvider, useConnection, useWallet, WalletProvider } from "@solana/wallet-adapter-react"
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
 import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
-import { clusterApiUrl } from "@solana/web3.js"
 import { Analytics } from "@vercel/analytics/react"
 import { SessionProvider, signOut, useSession } from "next-auth/react"
 import { ReactNode, useEffect, useMemo } from "react"
 import { useGumSDK } from "@/hooks/use-gum-sdk"
-import { IS_PROD, SOLANA_CLUSTER } from "@/utils/env"
+import { IS_PROD, SOLANA_CLUSTER, SOLANA_PRC } from "@/utils/env"
 
 const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
   const { connection } = useConnection()
@@ -54,9 +53,6 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
 export default function Providers({ children }: { children: ReactNode }) {
   const network = SOLANA_CLUSTER
 
-  // You can also provide a custom RPC endpoint.
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
-
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
@@ -67,7 +63,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   )
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider endpoint={SOLANA_PRC}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <UploadProviderWraper>
