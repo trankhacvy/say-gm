@@ -32,7 +32,11 @@ class Supabase {
   }
 
   async findAllUser() {
-    const { data, error } = await this.client.from(USERS_TABLE).select("*").order("domain_name", { ascending: true })
+    const { data, error } = await this.client
+      .from(USERS_TABLE)
+      .select("*")
+      .not("domain_name", "is", null)
+      .order("domain_name", { ascending: true })
     if (!data || error) throw error
     return data
   }
