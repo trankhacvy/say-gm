@@ -18,6 +18,7 @@ import Pyth from "@/utils/pyth"
 import { getTransferTransaction } from "@/lib/solana"
 import { PublicKey } from "@solana/web3.js"
 import supabase from "@/lib/supabase"
+import { Separator } from "../ui/separator"
 
 type MembershipProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
@@ -28,12 +29,9 @@ export default function Membership({ user }: MembershipProps) {
   const { publicKey } = useWallet()
 
   return (
-    <div className="w-full rounded-2xl bg-white p-6 shadow-card">
-      <Typography as="h2" level="body2" className="font-bold">
-        Membership
-      </Typography>
+    <>
       {isLoading ? (
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="grid w-full grid-cols-3 gap-10">
           {Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="w-full rounded-2xl bg-gray-200 p-4">
               <AspectRatio className="rounded-2xl">
@@ -54,7 +52,7 @@ export default function Membership({ user }: MembershipProps) {
               </Typography>
             </div>
           ) : (
-            <div className="mt-6 grid grid-cols-1 gap-4">
+            <div className="grid w-full grid-cols-3 gap-10">
               {membershipTiers?.map((item) => (
                 <MembershipCard
                   key={item.id}
@@ -67,7 +65,7 @@ export default function Membership({ user }: MembershipProps) {
           )}
         </>
       )}
-    </div>
+    </>
   )
 }
 
@@ -153,12 +151,23 @@ const MembershipCard = ({
   }
 
   return (
-    <div className="w-full rounded-2xl bg-gray-200 p-4">
-      <AspectRatio>
-        <Image className="rounded-xl" src={tier.image ?? ""} alt={tier.name ?? ""} fill />
-      </AspectRatio>
-      <div className="flex flex-col gap-3 py-5">
-        <Typography className="font-bold">{tier.name}</Typography>
+    <div className="rounded-2xl bg-white p-6 shadow-card">
+      <div className="flex w-full items-center">
+        <div className="w-2/3">
+          <Typography level="body2" className="font-bold">
+            {tier.name}
+          </Typography>
+          <Typography level="body4" className="line-clamp-2" color="secondary">
+            {tier.description}
+          </Typography>
+        </div>
+        <div className="w-1/2">
+          <AspectRatio>
+            <Image className="rounded-xl" src={tier.image ?? ""} alt={tier.name ?? ""} fill />
+          </AspectRatio>
+        </div>
+      </div>
+      <div className="flex flex-col gap-5">
         <div className="flex">
           <Typography color="primary" className="font-bold">
             $
@@ -167,21 +176,23 @@ const MembershipCard = ({
             {tier.price}
           </Typography>
         </div>
+        <Separator />
+        <Typography className="font-sembold">Benefit</Typography>
         <Typography level="body4" color="secondary">
           {tier.benefit}
         </Typography>
+        {!hideAction && (
+          <>
+            {publicKey ? (
+              <Button loading={loading} onClick={handleJoin} fullWidth color="primary">
+                Join
+              </Button>
+            ) : (
+              <ConnectWalletButton />
+            )}
+          </>
+        )}
       </div>
-      {!hideAction && (
-        <>
-          {publicKey ? (
-            <Button loading={loading} onClick={handleJoin} fullWidth color="primary">
-              Join
-            </Button>
-          ) : (
-            <ConnectWalletButton />
-          )}
-        </>
-      )}
     </div>
   )
 }
