@@ -13,7 +13,7 @@ type FeedProps = {
 
 export default function Feed({ user }: FeedProps) {
   return (
-    <div className="flex w-full flex-col gap-6 px-3 lg:w-3/5">
+    <div className="flex w-full flex-col gap-6 lg:basis-3/5">
       <SayGMForm user={user} />
       <DonationList id={String(user.id)} />
     </div>

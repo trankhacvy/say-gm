@@ -40,8 +40,6 @@ export function DashboardHeader() {
         </IconButton>
         <div className="flex grow items-center justify-end gap-4">
           <Button
-            // variant="link"
-            // className="underline"
             href={`/users/${session?.user.domain_name}`}
             target="_blank"
             as="a"

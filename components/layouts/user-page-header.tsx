@@ -18,6 +18,8 @@ import { useRouter } from "next/navigation"
 import { SigninMessage } from "@/lib/signin-message"
 import Link from "next/link"
 import { Routes } from "@/config/routes"
+import GmLogo from "../gm-logo"
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription } from "../ui/sheet"
 
 export function UserPageHeader() {
   const [small, setSmall] = useState(false)
@@ -41,16 +43,21 @@ export function UserPageHeader() {
       })}
     >
       <div className="relative mx-auto flex h-full min-h-[56px] w-full max-w-screen-xl items-center px-4 md:min-h-[64px] md:px-6 lg:px-10">
-        <Link href="/" className="text-3xl font-bold text-primary-500 underline">
-          gm
+        <Link href="/" className="underline">
+          <GmLogo className="text-7xl" />
         </Link>
 
-        <IconButton className="mr-2 lg:hidden" size="sm">
-          <MenuIcon />
-        </IconButton>
         <div className="flex grow items-center justify-end gap-4">
-          <ConnectWalletButton />
           <AdminUserMenu />
+          <ConnectWalletButton />
+
+          <NavMobile
+            trigger={
+              <IconButton className="mr-2 lg:hidden" size="sm">
+                <MenuIcon />
+              </IconButton>
+            }
+          />
         </div>
       </div>
     </header>
@@ -113,7 +120,7 @@ const AdminUserMenu = () => {
 
   if (status === "unauthenticated")
     return (
-      <Button loading={loading} onClick={login}>
+      <Button className="hidden lg:inline-flex" loading={loading} onClick={login}>
         Become Creator
       </Button>
     )
@@ -121,7 +128,7 @@ const AdminUserMenu = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button>
+        <button className="hidden lg:inline-flex">
           <Avatar>
             <AvatarImage
               className="bg-gray-500/24"
@@ -160,5 +167,112 @@ const AdminUserMenu = () => {
         </div>
       </PopoverContent>
     </Popover>
+  )
+}
+
+const NavMobile = ({ trigger }: { trigger: React.ReactNode }) => {
+  const { data: session, status } = useSession()
+  const wallet = useWallet()
+  const walletModal = useWalletModal()
+  const router = useRouter()
+  const [openConnectWallet, setOpenConnectWallet] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const login = async () => {
+    try {
+      if (session) {
+        router.push(`/dashboard`)
+        return
+      }
+      if (!wallet.connected) {
+        walletModal.setVisible(true)
+        setOpenConnectWallet(true)
+        return
+      }
+      setOpenConnectWallet(false)
+      const csrf = await getCsrfToken()
+      if (!wallet.publicKey || !csrf || !wallet.signMessage) return
+      setLoading(true)
+      const message = new SigninMessage({
+        domain: window.location.host,
+        publicKey: wallet.publicKey?.toBase58(),
+        statement: `Sign this message to sign in to the app.`,
+        nonce: csrf,
+      })
+
+      const data = new TextEncoder().encode(message.prepare())
+      const signature = await wallet.signMessage(data)
+      const serializedSignature = bs58.encode(signature)
+
+      await signIn("credentials", {
+        message: JSON.stringify(message),
+        signature: serializedSignature,
+        callbackUrl: "/dashboard",
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (openConnectWallet && wallet.connected) {
+      login()
+    }
+  }, [openConnectWallet, wallet])
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetContent position="right" className="w-[80%]">
+        <SheetHeader>
+          <Link href="/" className="underline">
+            <GmLogo className="text-7xl" />
+          </Link>
+        </SheetHeader>
+        <div className="flex flex-col gap-4 py-10">
+          {status === "unauthenticated" && (
+            <Button loading={loading} onClick={login}>
+              Become Creator
+            </Button>
+          )}
+          {status === "authenticated" && (
+            <>
+              <Link href={Routes.DASHBOARD}>
+                <Button fullWidth as="a" className="gap-4" loading={loading} onClick={login}>
+                  <Avatar size="sm">
+                    <AvatarImage
+                      className="bg-gray-500/24"
+                      // @ts-ignore
+                      src={session?.user.profile_metadata?.avatar}
+                      // @ts-ignore
+                      alt={session?.user?.profile_metadata?.name}
+                    />
+                    <AvatarFallback className="bg-primary-500 text-xl text-white">
+                      {/* @ts-ignore */}
+                      {session?.user?.profile_metadata?.name?.charAt(0)}A
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+              <Link href={Routes.DASHBOARD}>
+                <Button
+                  className="gap-4"
+                  onClick={() => {
+                    signOut()
+                  }}
+                  fullWidth
+                  color="error"
+                >
+                  Logout
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }

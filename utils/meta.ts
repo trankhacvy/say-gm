@@ -1,5 +1,6 @@
 import { siteConfig } from "@/config/site"
 import { Metadata } from "next"
+import { APP_URL } from "./env"
 
 export function constructMetadata({
   title = siteConfig.name,
@@ -32,7 +33,7 @@ export function constructMetadata({
       creator: "@vincenzo",
     },
     icons,
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
+    metadataBase: new URL(APP_URL),
     themeColor: "#FFF",
   }
 }
