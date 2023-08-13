@@ -98,8 +98,6 @@ function ProfileForm() {
         avatar: avatarUrl,
       }
 
-      console.log("profileMetadata", profileMetadata)
-
       const uploadRes = await handleUpload(profileMetadata, wallet)
       if (!uploadRes) {
         throw new Error("Error uploading profile metadata")
