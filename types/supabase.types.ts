@@ -47,7 +47,7 @@ export interface Database {
           {
             foreignKeyName: "dev_tbl_donations_creator_id_fkey"
             columns: ["creator_id"]
-            referencedRelation: "tbl_users"
+            referencedRelation: "dev_tbl_users"
             referencedColumns: ["id"]
           }
         ]
@@ -127,7 +127,7 @@ export interface Database {
           {
             foreignKeyName: "dev_tbl_memberships_tiers_creator_id_fkey"
             columns: ["creator_id"]
-            referencedRelation: "tbl_users"
+            referencedRelation: "dev_tbl_users"
             referencedColumns: ["id"]
           }
         ]
@@ -196,7 +196,7 @@ export interface Database {
           }
         ]
       }
-      tbl_donation: {
+      tbl_donations: {
         Row: {
           amount: number | null
           created_at: string
@@ -232,7 +232,7 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "tbl_donation_creator_id_fkey"
+            foreignKeyName: "tbl_donations_creator_id_fkey"
             columns: ["creator_id"]
             referencedRelation: "tbl_users"
             referencedColumns: ["id"]
@@ -268,7 +268,7 @@ export interface Database {
           {
             foreignKeyName: "tbl_memberships_tier_id_fkey"
             columns: ["tier_id"]
-            referencedRelation: "dev_tbl_memberships_tiers"
+            referencedRelation: "tbl_memberships_tiers"
             referencedColumns: ["id"]
           }
         ]
@@ -410,7 +410,7 @@ export interface Database {
           {
             foreignKeyName: "dev_tbl_donations_creator_id_fkey"
             columns: ["creator_id"]
-            referencedRelation: "tbl_users"
+            referencedRelation: "dev_tbl_users"
             referencedColumns: ["id"]
           }
         ]
@@ -424,7 +424,7 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "tbl_donation_creator_id_fkey"
+            foreignKeyName: "tbl_donations_creator_id_fkey"
             columns: ["creator_id"]
             referencedRelation: "tbl_users"
             referencedColumns: ["id"]

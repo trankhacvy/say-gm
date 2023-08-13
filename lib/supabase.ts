@@ -3,7 +3,7 @@ import { Database } from "@/types/supabase.types"
 import { IS_PROD } from "@/utils/env"
 
 export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
-export const DONATIONS_TABLE = IS_PROD ? "tbl_donation" : "dev_tbl_donations"
+export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_tbl_donations"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 
