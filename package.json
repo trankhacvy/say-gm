@@ -63,6 +63,7 @@
     "@solana/web3.js": "^1.77.3",
     "@supabase/supabase-js": "^2.31.0",
     "@vercel/analytics": "^1.0.1",
+    "@vercel/og": "^0.5.11",
     "bignumber.js": "^9.1.1",
     "bs58": "^5.0.0",
     "classnames": "^2.3.2",

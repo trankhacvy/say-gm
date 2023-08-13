@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: { params: { username: string 
   return constructMetadata({
     title,
     description,
+    image: `/api/og?username=${user.domain_name}`,
   })
 }
 
