@@ -31,9 +31,7 @@ export function LandingHeader() {
       }}
     >
       <div className="relative mx-auto flex h-full min-h-[56px] w-full max-w-screen-xl items-center justify-between px-4 md:min-h-[64px] md:px-6 lg:px-10">
-        <Link href="/" className="underline">
-          <GmLogo className="text-7xl" />
-        </Link>
+        <GmLogo className="text-7xl" href="/" />
 
         <div className="flex grow items-center justify-end gap-2">
           <ConnectWalletButton />

@@ -78,15 +78,27 @@ function ProfileForm() {
       }
 
       setStep("upload")
-      const avatarUpload = await Supabase.uploadFile(`avatar/${new Date().getTime()}`, values.avatar)
 
-      if (!avatarUpload.data?.publicUrl) throw new Error("Error uploading avatar")
+      let avatarUrl = ""
+      if (typeof values.avatar === "string") {
+        avatarUrl = values.avatar
+      } else {
+        const avatarUpload = await Supabase.uploadFile(`avatar/${new Date().getTime()}`, values.avatar)
+        if (!avatarUpload.data?.publicUrl) throw new Error("Error uploading avatar")
+        avatarUrl = avatarUpload.data?.publicUrl
+      }
+
+      const bio =
+        values.bio ||
+        "Welcome to my Say GM Page. If you enjoy my content, please consider supporting what I do. Thank you."
 
       const profileMetadata = {
         name: values.name,
-        bio: values.bio,
-        avatar: avatarUpload?.data?.publicUrl,
+        bio,
+        avatar: avatarUrl,
       }
+
+      console.log("profileMetadata", profileMetadata)
 
       const uploadRes = await handleUpload(profileMetadata, wallet)
       if (!uploadRes) {
@@ -94,12 +106,6 @@ function ProfileForm() {
       }
 
       setStep("create-profile")
-
-      await new Promise((resolve: any) => {
-        setTimeout(() => {
-          resolve()
-        }, 3000)
-      })
 
       const profilePda = await createProfileWithDomain(uploadRes.url, values.username, publicKey)
       if (!profilePda) {
@@ -126,6 +132,8 @@ function ProfileForm() {
         variant: "error",
         title: error?.message || "Server error",
       })
+    } finally {
+      setStep("default")
     }
   }
 
@@ -137,8 +145,8 @@ function ProfileForm() {
             Create profile
           </Typography>
           <div className="space-y-5">
-            <div className="flex gap-4">
-              <div className="flex-1">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="md:flex-1">
                 <FormField
                   control={control}
                   name="avatar"
@@ -164,9 +172,10 @@ function ProfileForm() {
                   )}
                 />
               </div>
-              <div className="h-full w-full flex-1">
-                <Typography className="text-sm font-medium">Use NFT as avatar</Typography>
-                <div className="grid max-h-[276px] grid-cols-2 gap-4 overflow-auto px-2 pt-2">
+
+              <div className="w-full md:flex-1">
+                <Typography className="mb-2 text-sm font-medium">Use NFT as avatar</Typography>
+                <div className="grid max-h-[300px] grid-cols-2 gap-4 overflow-auto rounded-2xl bg-gray-500/24 p-4 md:max-h-[276px]">
                   {isLoading ? (
                     Array.from({ length: 10 }).map((_, id) => (
                       <AspectRatio key={id}>
@@ -183,7 +192,7 @@ function ProfileForm() {
                         nfts?.map((nft) => (
                           <button
                             className={cn("w-full overflow-hidden rounded-xl", {
-                              "shadow-[rgb(33,43,54)_0px_0px_0px_2px]": selectedNft === nft.mint,
+                              "border-[4px] border-success-500": selectedNft === nft.mint,
                             })}
                             key={nft.mint}
                             onClick={(event) => {
@@ -194,7 +203,7 @@ function ProfileForm() {
                           >
                             <AspectRatio>
                               <img
-                                className="h-auto w-full rounded-xl object-cover"
+                                className="h-auto w-full object-cover"
                                 src={nft.cached_image_uri ?? nft.image_uri}
                                 alt={nft.name}
                               />

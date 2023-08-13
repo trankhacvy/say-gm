@@ -8,6 +8,7 @@ import { IconButton } from "@/components/ui/icon-button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Typography } from "@/components/ui/typography"
+import { DashboardNavMobile } from "@/components/layouts/dashboard-nav"
 import { cn } from "@/utils/cn"
 import { Button } from "../ui/button"
 
@@ -35,9 +36,14 @@ export function DashboardHeader() {
       )}
     >
       <div className="relative flex h-full min-h-[56px] items-center px-4 md:min-h-[64px] md:px-6 lg:px-10">
-        <IconButton className="mr-2 lg:hidden" size="sm">
-          <MenuIcon />
-        </IconButton>
+        <DashboardNavMobile
+          trigger={
+            <IconButton className="mr-2 lg:hidden" size="sm">
+              <MenuIcon />
+            </IconButton>
+          }
+        />
+
         <div className="flex grow items-center justify-end gap-4">
           <Button
             href={`/users/${session?.user.domain_name}`}

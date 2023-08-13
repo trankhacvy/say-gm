@@ -3,7 +3,7 @@
 import { GumProvider, UploaderProvider } from "@gumhq/react-sdk"
 import { ConnectionProvider, useConnection, useWallet, WalletProvider } from "@solana/wallet-adapter-react"
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets"
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
 import { clusterApiUrl } from "@solana/web3.js"
 import { Analytics } from "@vercel/analytics/react"
 import { SessionProvider, signOut, useSession } from "next-auth/react"
@@ -18,7 +18,7 @@ const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
   return (
     <GumProvider sdk={sdk}>
       <UploaderProvider
-        uploaderType="arweave"
+        uploaderType={SOLANA_CLUSTER === "devnet" ? "arweave" : "genesysgo"}
         connection={connection}
         cluster={SOLANA_CLUSTER as "devnet" | "mainnet-beta"}
       >
@@ -59,12 +59,9 @@ export default function Providers({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(
     () => [
-      // new CoinbaseWalletAdapter(),
       new PhantomWalletAdapter(),
-      // new GlowWalletAdapter(),
-      // new SlopeWalletAdapter(),
-      // new SolflareWalletAdapter({ network }),
-      // new TorusWalletAdapter(),
+      // @ts-ignore
+      new SolflareWalletAdapter({ network }),
     ],
     [network]
   )
