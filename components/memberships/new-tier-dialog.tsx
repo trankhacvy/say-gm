@@ -43,6 +43,12 @@ const formSchema = z.object({
   image: z.any().refine((file) => !!file, "Image is required."),
 })
 
+export const SAMPLE_KEY = [
+  40, 65, 65, 141, 147, 241, 237, 107, 189, 168, 105, 136, 0, 184, 63, 160, 64, 149, 125, 225, 74, 192, 224, 145, 184,
+  118, 207, 152, 73, 181, 91, 55, 77, 18, 228, 123, 206, 251, 134, 146, 91, 68, 218, 88, 194, 238, 25, 38, 244, 7, 165,
+  149, 160, 152, 41, 29, 222, 45, 138, 115, 74, 60, 24, 235,
+]
+
 export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewTierDialogProps) => {
   const { toast } = useToast()
   const { data: session } = useSession()
@@ -88,6 +94,7 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
       const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
 
       const mint = Keypair.generate()
+      const keypair = Keypair.fromSecretKey(Uint8Array.from(SAMPLE_KEY))
 
       const tx = await metaplex
         .nfts()
@@ -98,9 +105,12 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
           symbol: values.name.substring(0, 6).toUpperCase(),
           sellerFeeBasisPoints: 0,
           uri: uploadResult.uri,
+          isCollection: true,
+          updateAuthority: keypair,
+          collectionAuthorityIsDelegated: true
         })
 
-      const txResult = await metaplex.rpc().sendAndConfirmTransaction(tx, {}, [mint])
+      const txResult = await metaplex.rpc().sendAndConfirmTransaction(tx, {}, [mint, keypair])
 
       await supabase.createMembershipTier(
         session?.user.id!,
@@ -148,7 +158,7 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
                   <FormItem>
                     <FormLabel>Tier name</FormLabel>
                     <FormControl>
-                      <Input fullWidth placeholder="eg. Dimond" {...field} />
+                      <Input fullWidth placeholder="eg. Diamond" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -19,6 +19,8 @@ import { getTransferTransaction } from "@/lib/solana"
 import { PublicKey } from "@solana/web3.js"
 import supabase from "@/lib/supabase"
 import { Separator } from "../ui/separator"
+import { SAMPLE_KEY } from "../memberships/new-tier-dialog"
+import { useGetMembershipsByWallet } from "@/hooks/use-memberships"
 
 type MembershipProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
@@ -27,10 +29,11 @@ type MembershipProps = {
 export default function Membership({ user }: MembershipProps) {
   const { data: membershipTiers, isLoading } = useMembershipTiers(String(user.id))
   const { publicKey } = useWallet()
+  const { data: memberships, isLoading: isMembershipsLoading } = useGetMembershipsByWallet(publicKey?.toBase58())
 
   return (
     <>
-      {isLoading ? (
+      {isLoading || isMembershipsLoading ? (
         <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="w-full rounded-2xl bg-gray-200 p-4">
@@ -59,6 +62,7 @@ export default function Membership({ user }: MembershipProps) {
                   tier={item}
                   user={user}
                   hideAction={!!publicKey && publicKey.toBase58() === user.wallet}
+                  joined={!!memberships?.find((membership) => membership.tier_id === item.id)}
                 />
               ))}
             </div>
@@ -73,10 +77,12 @@ const MembershipCard = ({
   tier,
   user,
   hideAction,
+  joined = false,
 }: {
   tier: Database["public"]["Tables"]["tbl_memberships_tiers"]["Row"]
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
   hideAction?: boolean
+  joined?: boolean
 }) => {
   const wallet = useWallet()
   const { publicKey, sendTransaction } = wallet
@@ -112,6 +118,7 @@ const MembershipCard = ({
       if (!uri) throw new Error("Upload error")
 
       const mint = Keypair.generate()
+      const keypair = Keypair.fromSecretKey(Uint8Array.from(SAMPLE_KEY))
 
       const mintTx = await metaplex
         .nfts()
@@ -122,6 +129,8 @@ const MembershipCard = ({
           symbol: tier?.name?.substring(0, 6)?.toUpperCase(),
           sellerFeeBasisPoints: 0,
           uri: uri,
+          collection: new PublicKey(tier.mint_address ?? ""),
+          collectionAuthority: keypair,
         })
 
       const blockhash = await connection.getLatestBlockhash()
@@ -130,7 +139,7 @@ const MembershipCard = ({
       const transferTx = getTransferTransaction(publicKey, new PublicKey(user.wallet), solAmount)
       tx.add(...transferTx.instructions)
 
-      const signature = await sendTransaction(tx, connection, { signers: [mint] })
+      const signature = await sendTransaction(tx, connection, { signers: [mint, keypair] })
       await connection.confirmTransaction(signature, "processed")
 
       await supabase.createMembership(tier.id, publicKey.toBase58(), mint.publicKey.toBase58(), signature)
@@ -184,8 +193,8 @@ const MembershipCard = ({
         {!hideAction && (
           <>
             {publicKey ? (
-              <Button loading={loading} onClick={handleJoin} fullWidth>
-                Join
+              <Button loading={loading} onClick={handleJoin} disabled={joined} fullWidth>
+                {joined ? "Joined" : "Join"}
               </Button>
             ) : (
               <ConnectWalletButton />

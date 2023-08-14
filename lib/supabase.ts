@@ -33,7 +33,6 @@ class Supabase {
   }
 
   // users
-
   async findUserByWallet(wallet: string) {
     const { data, error } = await this.client.from(USERS_TABLE).select("*").eq("wallet", wallet).single()
     if (!data || error) throw error
@@ -172,24 +171,35 @@ class Supabase {
     return data
   }
 
-  //posts
-  async createPost(
-    params: PostModel
-  ) {
-    const { authorId, content, imageUrls, postAddress, signature, metadataUri, audience, minMembershipTier } = params
-    if (!authorId) throw new Error('Invalid author')
+  async findMembershipsByWallet(wallet: string) {
+    const { data, error } = await this.client.from(MEMBERSHIP_TABLE).select("*").eq("member", wallet)
+    if (!data || error) throw error
+    return data
+  }
+
+  async findMembershipByCreator(creator: string) {
     const { data, error } = await this.client
-      .from(POST_TABLE)
-      .insert({
-        author_id: authorId,
-        content,
-        image_urls: imageUrls,
-        post_address: postAddress,
-        signature,
-        post_metadata_uri: metadataUri,
-        audience,
-        min_membership_tier: minMembershipTier,
-      })
+      .from(MEMBERSHIP_TABLE)
+      .select("*,dev_tbl_memberships_tiers(*)")
+      .eq("dev_tbl_memberships_tiers.creator_id", creator)
+    if (!data || error) throw error
+    return data
+  }
+
+  //posts
+  async createPost(params: PostModel) {
+    const { authorId, content, imageUrls, postAddress, signature, metadataUri, audience, minMembershipTier } = params
+    if (!authorId) throw new Error("Invalid author")
+    const { data, error } = await this.client.from(POST_TABLE).insert({
+      author_id: authorId,
+      content,
+      image_urls: imageUrls,
+      post_address: postAddress,
+      signature,
+      post_metadata_uri: metadataUri,
+      audience,
+      min_membership_tier: minMembershipTier,
+    })
     if (!data || error) throw error
     return data
   }
@@ -203,7 +213,6 @@ class Supabase {
     if (!data || error) throw error
     return data
   }
-
 
   // misc
   uploadFile = async (filename: string, file: File) => {
