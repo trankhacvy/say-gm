@@ -17,7 +17,7 @@ export const config = {
   ],
 }
 
-const protectedPaths = [Routes.DASHBOARD, Routes.POSTS, Routes.MY_SUPPORTERS, Routes.MEMBERSHIPS, Routes.SETTINGS]
+const protectedPaths = [Routes.DASHBOARD, Routes.POSTS, Routes.SUPPORTERS, Routes.MEMBERSHIPS, Routes.SETTINGS]
 
 export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
   const url = req.nextUrl
