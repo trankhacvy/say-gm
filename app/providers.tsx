@@ -1,7 +1,14 @@
 "use client"
 
-import { GumProvider, UploaderProvider } from "@gumhq/react-sdk"
-import { ConnectionProvider, useConnection, useWallet, WalletProvider } from "@solana/wallet-adapter-react"
+import { GumProvider, SessionWalletProvider, UploaderProvider, useSessionKeyManager } from "@gumhq/react-sdk"
+import {
+  AnchorWallet,
+  ConnectionProvider,
+  useAnchorWallet,
+  useConnection,
+  useWallet,
+  WalletProvider,
+} from "@solana/wallet-adapter-react"
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
 import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
 import { Analytics } from "@vercel/analytics/react"
@@ -11,21 +18,26 @@ import { useGumSDK } from "@/hooks/use-gum-sdk"
 import { SOLANA_CLUSTER, SOLANA_PRC } from "@/utils/env"
 
 const UploadProviderWraper = ({ children }: { children: ReactNode }) => {
+  const cluster = SOLANA_CLUSTER as "devnet" | "mainnet-beta"
   const { connection } = useConnection()
+  const anchorWallet = useAnchorWallet() as AnchorWallet
   const sdk = useGumSDK()
 
+  const sessionWallet = useSessionKeyManager(anchorWallet, connection, cluster)
   return (
     <GumProvider sdk={sdk}>
-      <UploaderProvider
-        uploaderType={"arweave"}
-        connection={connection}
-        cluster={SOLANA_CLUSTER as "devnet" | "mainnet-beta"}
-      >
-        <SessionProvider>
-          {children}
-          <Analytics />
-        </SessionProvider>
-      </UploaderProvider>
+      <SessionWalletProvider sessionWallet={sessionWallet}>
+        <UploaderProvider
+          uploaderType="arweave"
+          connection={connection}
+          cluster={SOLANA_CLUSTER as "devnet" | "mainnet-beta"}
+        >
+          <SessionProvider>
+            {children}
+            <Analytics />
+          </SessionProvider>
+        </UploaderProvider>
+      </SessionWalletProvider>
     </GumProvider>
   )
 }

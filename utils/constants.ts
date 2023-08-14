@@ -14,3 +14,15 @@ export const APP_DOMAIN =
     : "http://app.localhost:3000"
 
 export const DEFAULT_REDIRECTS = {}
+
+export const AUDIENCE_OPTIONS = [
+  { label: "Everyone (Public)", value: "public" },
+  { label: "All Supporters (One-off & Monthly)", value: "supporters" },
+  { label: "All Monthly Supporters (Members)", value: "members" },
+]
+
+export const AUDIENCE_OPTIONS_MAP = {
+  public: "Everyone (Public)",
+  supporters: "All Supporters (One-off & Monthly)",
+  members: "All Monthly Supporters (Members)",
+}
