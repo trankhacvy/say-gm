@@ -3,9 +3,12 @@ import { Database } from "@/types/supabase.types"
 import { IS_PROD } from "@/utils/env"
 
 export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
-export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_tbl_donations"
+export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_user_feeds"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
+// views
+const USER_FEED_VIEW = IS_PROD ? "user_feeds" : "dev_user_feeds"
+const TOP_DONATIONS_VIEW = IS_PROD ? "top_donations" : "dev_top_donations"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -88,10 +91,16 @@ class Supabase {
 
   async findDonationByCreator(creator: string) {
     const { data, error } = await this.client
-      .from(DONATIONS_TABLE)
+      .from(USER_FEED_VIEW)
       .select("*")
       .eq("creator_id", creator)
       .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+  async getSupportersByCreator(creator: string) {
+    const { data, error } = await this.client.from(TOP_DONATIONS_VIEW).select("*").eq("creator_id", creator)
     if (!data || error) throw error
     return data
   }
@@ -151,7 +160,6 @@ class Supabase {
     return data
   }
 
-  // misc
   uploadFile = async (filename: string, file: File) => {
     const { data, error } = await this.client.storage.from("minions").upload(filename, file, {
       upsert: true,

@@ -1,6 +1,6 @@
 "use client"
 
-import { FlameIcon, SettingsIcon } from "lucide-react"
+import { HeartHandshakeIcon, HomeIcon, PartyPopperIcon, SettingsIcon, StickyNoteIcon, StoreIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Typography } from "@/components/ui/typography"
@@ -13,27 +13,27 @@ const NavItems = [
   {
     text: "Home",
     href: Routes.DASHBOARD,
-    icon: <FlameIcon />,
+    icon: <HomeIcon />,
   },
   {
-    text: "Posts",
-    href: Routes.POSTS,
-    icon: <FlameIcon />,
-  },
-  {
-    text: "My Supporters",
-    href: Routes.MY_SUPPORTERS,
-    icon: <FlameIcon />,
+    text: "Supporters",
+    href: Routes.SUPPORTERS,
+    icon: <HeartHandshakeIcon />,
   },
   {
     text: "Memberships",
     href: Routes.MEMBERSHIPS,
-    icon: <FlameIcon />,
+    icon: <PartyPopperIcon />,
+  },
+  {
+    text: "Posts",
+    href: Routes.POSTS,
+    icon: <StickyNoteIcon />,
   },
   {
     text: "Shop",
     href: Routes.SHOP,
-    icon: <FlameIcon />,
+    icon: <StoreIcon />,
   },
   {
     text: "Settings",

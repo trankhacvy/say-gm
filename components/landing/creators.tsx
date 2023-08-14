@@ -15,7 +15,7 @@ export default function Creators() {
   return (
     <div className="relative bg-gray-500/5 px-4 py-20 md:px-6 lg:px-10 lg:py-28">
       <div className="mx-auto max-w-screen-xl">
-        <Typography as="h2" className="mb-10 md:mb-20 text-center font-bold text-[2.5rem] md:text-5xl lg:text-6xl">
+        <Typography as="h2" className="mb-10 text-center text-[2.5rem] font-bold md:mb-20 md:text-5xl lg:text-6xl">
           Created for Creators
         </Typography>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
@@ -42,7 +42,7 @@ const CreatorCard = ({ creator }: { creator: Database["public"]["Tables"]["tbl_u
             fill
           />
         </AspectRatio>
-        <Typography as="h3" level="h6" className="mt-4 font-bold">
+        <Typography as="h3" level="h6" className="mt-4 overflow-hidden text-ellipsis font-bold">
           @{creator?.domain_name}
         </Typography>
       </div>
