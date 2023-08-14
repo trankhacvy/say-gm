@@ -6,6 +6,7 @@ export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
 export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_tbl_donations"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
+const SUPPORTERS_TABLE = IS_PROD ? "tbl_statistic_donate" : "dev_tbl_statistic_donate"
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -96,6 +97,12 @@ class Supabase {
     return data
   }
 
+  async getSupportersByCreator(creator: string) {
+    const { data, error } = await this.client.from(SUPPORTERS_TABLE).select("*").eq("creator_id", creator)
+    if (!data || error) throw error
+    return data
+  }
+
   // membership tiers
   async findMembershipTierByCreator(creator: string) {
     const { data, error } = await this.client
@@ -151,7 +158,6 @@ class Supabase {
     return data
   }
 
-  // misc
   uploadFile = async (filename: string, file: File) => {
     const { data, error } = await this.client.storage.from("minions").upload(filename, file, {
       upsert: true,

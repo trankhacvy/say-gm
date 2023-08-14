@@ -48,7 +48,7 @@ export default function Hero() {
       const signature = await wallet.signMessage(data)
       const serializedSignature = bs58.encode(signature)
 
-      const res = await signIn("credentials", {
+      await signIn("credentials", {
         message: JSON.stringify(message),
         signature: serializedSignature,
         callbackUrl: Routes.DASHBOARD,
