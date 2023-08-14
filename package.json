@@ -81,6 +81,8 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.44.3",
+    "react-icons": "^4.10.1",
+    "recharts": "2.1.10",
     "swr": "^2.2.0",
     "tailwind-merge": "^1.10.0",
     "tailwind-variants": "^0.1.8",

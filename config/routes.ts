@@ -2,7 +2,7 @@ export const Routes = {
   INDEX: "/",
   DASHBOARD: "/dashboard",
   POSTS: "/posts",
-  MY_SUPPORTERS: "/my-supporters",
+  SUPPORTERS: "/supporters",
   MEMBERSHIPS: "/memberships",
   SHOP: "/shop",
   SETTINGS: "/settings",
