@@ -39,7 +39,7 @@ export default function MySupporters() {
                       <div className="mr-2 h-10 w-10 flex-shrink-0 sm:mr-3">
                         <Image
                           className="rounded-full"
-                          src={getUserAvatar(supporter.donator ?? "A")}
+                          src={getUserAvatar(supporter.donator ?? "")}
                           width="40"
                           height="40"
                           alt="user"

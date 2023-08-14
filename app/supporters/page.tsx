@@ -4,7 +4,7 @@ import { Typography } from "@/components/ui/typography"
 import { Database } from "@/types/supabase.types"
 import { IS_PROD } from "@/utils/env"
 
-type Supporter = Database["public"]["Views"]["dev_tbl_statistic_donate"]["Row"]
+type Supporter = Database["public"]["Views"]["dev_top_donations"]["Row"]
 
 export default function Supporter() {
   if (IS_PROD) return <ComingSoon />

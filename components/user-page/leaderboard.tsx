@@ -9,6 +9,7 @@ import truncate from "@/utils/truncate"
 import { MedalIcon } from "lucide-react"
 import { Skeleton } from "../ui/skeleton"
 import { getTxUrl } from "@/utils/explorer"
+import Link from "next/link"
 
 type LeaderboardProps = {
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
@@ -30,14 +31,7 @@ export function Leaderboard({ user }: LeaderboardProps) {
             {donations.length === 0 ? (
               <Typography color="secondary">Become My First Supporter! 👋👋</Typography>
             ) : (
-              donations.map((item, idx) => (
-                <Item
-                  key={item.donator}
-                  donator={item.donator ?? ""}
-                  numOfDonation={item.count_donation ?? 0}
-                  order={idx + 1}
-                />
-              ))
+              donations.map((item, idx) => <Item key={item.donator} donator={item} order={idx + 1} />)
             )}
           </>
         )}
@@ -46,20 +40,40 @@ export function Leaderboard({ user }: LeaderboardProps) {
   )
 }
 
-const Item = ({ donator, numOfDonation, order }: { donator: string; numOfDonation: number; order: number }) => {
+const Item = ({
+  donator,
+  order,
+}: {
+  donator: Database["public"]["Views"]["dev_top_donations"]["Row"]
+  order: number
+}) => {
+  const hasUsername = !!donator.donator_username
   return (
     <div className="flex w-full items-center gap-4">
       <div className="relative h-10 w-10 overflow-hidden rounded-full">
-        <Image src={getUserAvatar(donator)} fill alt={donator} className="object-cover" />
+        <Image
+          src={hasUsername ? donator.donator_avatar ?? "" : getUserAvatar(donator.donator ?? "")}
+          fill
+          alt={donator.donator ?? ""}
+          className="object-cover"
+        />
       </div>
       <div className="flex-1">
-        <a href={getTxUrl(donator, "address")} target="_blank">
-          <Typography as="p" level="body4" className="font-semibold">
-            {truncate(donator, 24, true)}
-          </Typography>
-        </a>
+        {hasUsername ? (
+          <Link href={`/users/${donator.donator_username}`}>
+            <Typography as="p" level="body4" className="font-semibold">
+              @{donator.donator_username}
+            </Typography>
+          </Link>
+        ) : (
+          <a href={getTxUrl(donator.donator ?? "", "address")} target="_blank">
+            <Typography as="p" level="body4" className="font-semibold">
+              {truncate(donator.donator ?? "", 24, true)}
+            </Typography>
+          </a>
+        )}
         <Typography level="body4" color="error" className="font-bold">
-          {numOfDonation} 👋
+          {donator.count_donation ?? 0} 👋
         </Typography>
       </div>
       {order === 1 && (
