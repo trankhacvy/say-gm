@@ -17,6 +17,16 @@ export default function PostCard({ post, user }: PostCardProps) {
   const [liked, setLiked] = useState(false)
   const [likes, setLikes] = useState(post.total_reactions || 0)
 
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const MAX_LENGTH = 100
+
+  const displayedContent =
+    isCollapsed && post.content.length > MAX_LENGTH ? post.content.slice(0, MAX_LENGTH) + "..." : post.content
+
+  const handleToggleContent = () => {
+    setIsCollapsed((prev) => !prev)
+  }
+
   const toggleHeart = () => {
     if (liked) {
       setLikes(likes - 1)
@@ -44,7 +54,12 @@ export default function PostCard({ post, user }: PostCardProps) {
       </div>
       <div className="px-6 pb-2 pt-4">
         <Typography as="p" level="body4">
-          {post.content}
+          {displayedContent}
+          {post.content.length > MAX_LENGTH && (
+            <span className="cursor-pointer text-blue-500" onClick={handleToggleContent}>
+              {isCollapsed ? " More" : " Less"}
+            </span>
+          )}
         </Typography>
       </div>
       {post?.image_urls[0] && (

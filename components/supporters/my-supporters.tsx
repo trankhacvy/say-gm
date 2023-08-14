@@ -15,7 +15,7 @@ export default function MySupporters() {
       <div className="p-3">
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
-            <thead className="bg-gray-50 text-xs font-semibold uppercase text-gray-400">
+            <thead className="bg-gray-50 text-xs font-semibold uppercase">
               <tr>
                 <th className="whitespace-nowrap p-2">
                   <div className="text-left font-semibold"></div>
@@ -56,7 +56,7 @@ export default function MySupporters() {
                     </div>
                   </td>
                   <td className="whitespace-nowrap p-2">
-                    <div className="text-center text-lg">{supporter.count_donation}</div>
+                    <div className="text-center">{supporter.count_donation}</div>
                   </td>
                 </tr>
               ))}

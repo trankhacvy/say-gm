@@ -18,9 +18,9 @@ export default function Post() {
   if (isLoading) {
     return (
       <div className="space-y-3 px-4 py-6">
-        <Skeleton className="h-5 w-1/2 rounded-xl" />
-        <Skeleton className="h-5 w-1/2 rounded-xl" />
-        <Skeleton className="h-5 w-1/2 rounded-xl" />
+        <Skeleton className="h-5 w-full rounded-xl" />
+        <Skeleton className="h-5 w-full rounded-xl" />
+        <Skeleton className="h-5 w-full rounded-xl" />
       </div>
     )
   }
@@ -35,7 +35,7 @@ export default function Post() {
           trigger={<Button endDecorator={<PlusIcon />}>New Post</Button>}
         />
       </div>
-      <div className="mx-auto w-full rounded-sm border border-gray-200 bg-white shadow-lg">
+      <div className="mx-auto w-full rounded-sm border border-gray-400 bg-white shadow-lg">
         <PostsTable userPosts={userPosts} />
       </div>
     </div>
