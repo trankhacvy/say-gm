@@ -3,6 +3,7 @@ import { Typography } from "@/components/ui/typography"
 import Feed from "@/components/user-page/feed"
 import Supabase from "@/lib/supabase"
 import { constructMetadata } from "@/utils/meta"
+import { Leaderboard } from "@/components/user-page/leaderboard"
 
 export async function generateMetadata({ params }: { params: { username: string } }) {
   const user = await Supabase.findUserUsername(params.username)
@@ -44,6 +45,7 @@ export default async function UserPage({ params }: { params: { username: string 
             </Typography>
           </div>
         </div>
+        <Leaderboard user={user} />
       </div>
       <Feed user={user} />
     </div>

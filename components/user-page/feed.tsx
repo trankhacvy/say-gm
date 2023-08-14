@@ -42,7 +42,7 @@ const DonationList = ({ id }: { id: string }) => {
       <div className="flex w-full flex-col items-center justify-center rounded-2xl bg-white p-5 shadow-card">
         <span className="text-7xl">👋</span>
         <Typography className="mt-4 font-semibold" color="primary">
-          Become My First Supporter!
+          Become My First Supporter! 👋👋
         </Typography>
       </div>
     )
