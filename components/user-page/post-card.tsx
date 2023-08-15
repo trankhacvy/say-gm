@@ -5,12 +5,14 @@ import { HeartIcon } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { Database } from "../../types/supabase.types"
+import { getUserAvatar } from "../../utils/common"
+import { MembersChip, PublicChip, SupportersChip } from "../posts/post-chips"
 import { AspectRatio } from "../ui/aspect-ratio"
 import { Typography } from "../ui/typography"
 
 type PostCardProps = {
   post: Database["public"]["Tables"]["tbl_posts"]["Row"]
-  user: Database["public"]["Tables"]["tbl_users"]["Row"]
+  user: { domain_name: string; wallet: string; profile_metadata: { avatar?: string } }
 }
 
 export default function PostCard({ post, user }: PostCardProps) {
@@ -18,7 +20,7 @@ export default function PostCard({ post, user }: PostCardProps) {
   const [likes, setLikes] = useState(post.total_reactions || 0)
 
   const [isCollapsed, setIsCollapsed] = useState(true)
-  const MAX_LENGTH = 100
+  const MAX_LENGTH = 200
 
   const displayedContent =
     isCollapsed && post.content.length > MAX_LENGTH ? post.content.slice(0, MAX_LENGTH) + "..." : post.content
@@ -27,6 +29,10 @@ export default function PostCard({ post, user }: PostCardProps) {
     setIsCollapsed((prev) => !prev)
   }
 
+  let imageUrl = ""
+  if (post.image_urls && post.image_urls[0]) {
+    imageUrl = post.image_urls[0]
+  }
   const toggleHeart = () => {
     if (liked) {
       setLikes(likes - 1)
@@ -40,7 +46,13 @@ export default function PostCard({ post, user }: PostCardProps) {
     <div className="w-3/4 rounded-2xl bg-white shadow-card">
       <div className="flex items-center justify-between gap-4 px-6 pt-6">
         <div className="flex items-center gap-4">
-          <Image width={40} height={40} alt="profile" src={user.profile_metadata?.avatar} className="rounded-full" />
+          <Image
+            width={40}
+            height={40}
+            alt="profile"
+            src={user?.profile_metadata?.avatar ?? getUserAvatar(user?.wallet ?? "A")}
+            className="rounded-full"
+          />
           <div className="flex-1">
             <Typography className="font-semibold">{user.domain_name}</Typography>
             <Typography as="p" level="body5" className="mt-1" color="secondary">
@@ -62,10 +74,10 @@ export default function PostCard({ post, user }: PostCardProps) {
           )}
         </Typography>
       </div>
-      {post?.image_urls[0] && (
+      {imageUrl && (
         <div className="px-6 py-2">
           <AspectRatio>
-            <Image className="rounded-xl" alt="profile" src={post?.image_urls[0]} fill />
+            <Image className="rounded-xl" alt="profile" src={imageUrl} fill />
           </AspectRatio>
         </div>
       )}
@@ -78,21 +90,3 @@ export default function PostCard({ post, user }: PostCardProps) {
     </div>
   )
 }
-
-const MembersChip = () => (
-  <span className="inline-flex items-center rounded-xl bg-purple-200 px-3 py-1 text-xs font-medium text-purple-700">
-    Membership
-  </span>
-)
-
-const SupportersChip = () => (
-  <span className="inline-flex items-center rounded-xl bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-    Supporters
-  </span>
-)
-
-const PublicChip = () => (
-  <span className="inline-flex items-center rounded-xl bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700">
-    Public
-  </span>
-)

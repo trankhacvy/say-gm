@@ -48,5 +48,23 @@ const PostList = ({ id, user }: { id: string; user: Database["public"]["Tables"]
     )
   }
 
-  return posts.map((post) => <PostCard key={post.id} user={user} post={post} />)
+  return posts.map((post) => {
+    let userAvatar = ""
+
+    if (user?.profile_metadata && typeof user.profile_metadata === "object" && "avatar" in user.profile_metadata) {
+      userAvatar = user.profile_metadata.avatar?.toString() || ""
+    }
+
+    return (
+      <PostCard
+        key={post.id}
+        user={{
+          domain_name: user.domain_name || "",
+          wallet: user.wallet || "",
+          profile_metadata: { avatar: userAvatar },
+        }}
+        post={post}
+      />
+    )
+  })
 }

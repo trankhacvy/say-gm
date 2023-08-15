@@ -177,6 +177,7 @@ class Supabase {
     params: PostModel
   ) {
     const { authorId, content, imageUrls, postAddress, signature, metadataUri, audience, minMembershipTier } = params
+    if (!authorId) throw new Error('Invalid author')
     const { data, error } = await this.client
       .from(POST_TABLE)
       .insert({

@@ -3,7 +3,7 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
 import { Edit } from "lucide-react"
 import Image from "next/image"
-import { AUDIENCE_OPTIONS_MAP } from "@/utils/constants"
+import { MembersChip, PublicChip, SupportersChip } from "./post-chips"
 import { Database } from "../../types/supabase.types"
 
 type PostsTableProps = {
@@ -39,21 +39,29 @@ export default function PostsTable({ userPosts }: PostsTableProps) {
         <tbody className="divide-y divide-gray-300 text-sm">
           {userPosts &&
             userPosts.map((post: Database["public"]["Tables"]["tbl_posts"]["Row"], index: number) => {
+              let imageUrl = ""
+              if (post.image_urls && post.image_urls[0]) {
+                imageUrl = post.image_urls[0]
+              }
               return (
                 <tr key={post.id}>
                   <td className="w-1/12 whitespace-nowrap p-2 text-center">{post.id}</td>
                   <td className="w-4/12 p-2">
                     <div className="text-left">
-                      {post.content.length > 40 ? `${post.content.slice(0, 30)}...` : post.content}
+                      {post.content.length > 60 ? `${post.content.slice(0, 50)}...` : post.content}
                     </div>
                   </td>
-                  <td className="w-2/12 whitespace-nowrap p-2">{AUDIENCE_OPTIONS_MAP[post.audience]}</td>
-                  <td className="w-2/12 whitespace-nowrap p-2 text-center">{post.total_reactions}</td>
-                  <td className="w-2/12 p-2">
-                    {post.image_urls[0] && (
-                      <div className="w-[80px]r">
+                  <td className="w-1/12 whitespace-nowrap p-2 text-center">
+                    {post.audience === "members" && <MembersChip />}
+                    {post.audience === "supporters" && <SupportersChip />}
+                    {post.audience === "public" && <PublicChip />}
+                  </td>
+                  <td className="w-1/12 whitespace-nowrap p-2 text-center">{post.total_reactions}</td>
+                  <td className="w-1/12 p-2">
+                    {imageUrl && (
+                      <div>
                         <AspectRatio className="flex items-center justify-center overflow-hidden rounded-xl bg-gray-500/24">
-                          <Image src={post.image_urls[0] ?? ""} fill alt={""} className="mx-auto object-contain" />{" "}
+                          <Image src={imageUrl ?? ""} fill alt={""} className="mx-auto object-contain" />{" "}
                         </AspectRatio>
                       </div>
                     )}
