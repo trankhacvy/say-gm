@@ -37,8 +37,6 @@ export default function Post({ creator }: PostProps) {
   }
 
   const getListPosts = async (userAddress?: string) => {
-    if (!userAddress) return []
-
     const audiences = [AUDIENCE_OPTIONS_ENUM.public]
 
     const donation = await supabase.getDonationInLastMonth(userAddress)

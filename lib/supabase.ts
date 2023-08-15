@@ -190,7 +190,8 @@ class Supabase {
     return data
   }
 
-  async findMyMembership(creatorId: string, address: string) : Promise<any> {
+  async findMyMembership(creatorId: string, address?: string) : Promise<any> {
+    if (!address) return null;
     const { data, error } = await this.client
       .from(MEMBERSHIP_TIERS_TABLE)
       .select(`
@@ -200,7 +201,7 @@ class Supabase {
         ${MEMBERSHIP_TABLE} (member)
       `)
       .eq("creator_id", creatorId)
-      .eq(`${MEMBERSHIP_TABLE}.member`, "5AHKzmDcjeAAnafTivi5u7dWYw3jUQh2VBRDzSd9ztVr")
+      .eq(`${MEMBERSHIP_TABLE}.member`, address)
       .limit(1)
       .single();
     
@@ -302,7 +303,9 @@ class Supabase {
     return data
   }
 
-  async getDonationInLastMonth(address: string) {
+  async getDonationInLastMonth(address?: string) {
+    if (!address) return null
+
     const { data, error } = await this.client
       .from(DONATIONS_TABLE)
       .select("*")
