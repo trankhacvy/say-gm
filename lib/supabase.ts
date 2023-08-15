@@ -13,6 +13,7 @@ export const DROPS_TABLE = IS_PROD ? "dev_tbl_drops" : "dev_tbl_drops"
 const USER_FEED_VIEW = IS_PROD ? "user_feeds" : "dev_user_feeds"
 const TOP_DONATIONS_VIEW = IS_PROD ? "top_donations" : "dev_top_donations"
 export const POST_TABLE = IS_PROD ? "tbl_posts" : "dev_tbl_posts"
+export const REACTION_TABLE = IS_PROD ? "tbl_reactions" : "dev_tbl_reactions"
 
 export type PostModel = {
   authorId: number | undefined
@@ -236,6 +237,36 @@ class Supabase {
       .select("*")
       .eq("author_id", creator)
       .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+  //reaction
+  async createReaction(params: { reacter: string, postId: number }) {
+    const { data, error } = await this.client.from(REACTION_TABLE).insert({
+      reacter: params.reacter,
+      post_id: params.postId,
+    }).select("*").single()
+
+    if (!data || error) throw error
+
+    await this.client.rpc('incrementreactions', { x: 1, row_id: params.postId })
+  }
+
+  async removeReaction(params: { reacter: string, postId: number }) {
+    await this.client.from(REACTION_TABLE)
+      .delete()
+      .eq("reacter", params.reacter)
+      .eq("post_id", params.postId);
+
+    await this.client.rpc('incrementreactions', { x: -1, row_id: params.postId })
+  }
+
+  async getLikedPostsByUser(user: string) {
+    const { data, error } = await this.client.from(REACTION_TABLE)
+      .select("*")
+      .eq("reacter", user).order("created_at", { ascending: false });
+
     if (!data || error) throw error
     return data
   }

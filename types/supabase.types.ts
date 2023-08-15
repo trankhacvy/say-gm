@@ -242,6 +242,34 @@ export interface Database {
           }
         ]
       }
+      dev_tbl_reactions: {
+        Row: {
+          created_at: string
+          post_id: number
+          reacter: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: number
+          reacter: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: number
+          reacter?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_reactions_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "dev_tbl_posts"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       dev_tbl_users: {
         Row: {
           created_at: string | null
@@ -481,6 +509,34 @@ export interface Database {
           }
         ]
       }
+      tbl_reactions: {
+        Row: {
+          created_at: string
+          post_id: number
+          reacter: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: number
+          reacter: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: number
+          reacter?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_reactions_post_id_fkey"
+            columns: ["post_id"]
+            referencedRelation: "tbl_posts"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tbl_users: {
         Row: {
           created_at: string | null
@@ -680,6 +736,13 @@ export interface Database {
           num_of_gm: number | null
           signature: string | null
         }[]
+      }
+      incrementreactions: {
+        Args: {
+          x: number
+          row_id: number
+        }
+        Returns: undefined
       }
       uid: {
         Args: Record<PropertyKey, never>

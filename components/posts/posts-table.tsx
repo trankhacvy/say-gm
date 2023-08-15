@@ -5,9 +5,9 @@ import { Edit, MoreVerticalIcon } from "lucide-react"
 import Image from "next/image"
 import { MembersChip, PublicChip, SupportersChip } from "./post-chips"
 import { Database } from "../../types/supabase.types"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
-import { Skeleton } from "../ui/skeleton"
 import { IconButton } from "../ui/icon-button"
+import { Skeleton } from "../ui/skeleton"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 
 type PostsTableProps = {
   userPosts: any[]
@@ -15,7 +15,7 @@ type PostsTableProps = {
 }
 
 export default function PostsTable({ userPosts, isLoading }: PostsTableProps) {
-  var x = (
+  const x = (
     <div className="overflow-x-auto p-3">
       <table className="w-full table-auto">
         <thead className="bg-gray-50 text-xs font-semibold uppercase">
