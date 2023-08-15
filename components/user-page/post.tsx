@@ -1,28 +1,69 @@
 "use client"
 
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useEffect, useState } from "react"
+import supabase from "@/lib/supabase"
 import { Database } from "@/types/supabase.types"
 import PostCard from "./post-card"
-import SayGMForm from "./say-gm-form"
-import { useCreatorPosts } from "../../hooks/use-creator-posts"
+import { AUDIENCE_OPTIONS_ENUM } from "../../utils/constants"
 import { Skeleton } from "../ui/skeleton"
 import { Typography } from "../ui/typography"
 
 type PostProps = {
-  user: Database["public"]["Tables"]["tbl_users"]["Row"]
+  creator: Database["public"]["Tables"]["tbl_users"]["Row"]
 }
 
-export default function Post({ user }: PostProps) {
+export default function Post({ creator }: PostProps) {
+  const { publicKey } = useWallet()
+  const [posts, setPosts] = useState<Database["public"]["Tables"]["tbl_posts"]["Row"][]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    getListPosts(publicKey?.toBase58())
+  }, [publicKey])
+
+  const getListPosts = async (userAddress?: string) => {
+    if (!userAddress) return []
+
+    const audiences = [AUDIENCE_OPTIONS_ENUM.public]
+
+    const donation = await supabase.getDonationInLastMonth(userAddress)
+    console.log("donation", donation)
+
+    if (donation) audiences.push(AUDIENCE_OPTIONS_ENUM.supporters)
+
+    const myMemberShip = await supabase.findMyMembership(String(creator.id), userAddress)
+    let mininumTier = 0
+    if (myMemberShip && myMemberShip.dev_tbl_memberships.length > 0) {
+      audiences.push(AUDIENCE_OPTIONS_ENUM.members)
+      mininumTier = myMemberShip.price
+    }
+
+    console.log("mininumTier ", mininumTier)
+
+    setIsLoading(false)
+
+    const posts = await supabase.findPosts(String(creator.id), audiences, mininumTier)
+
+    setPosts(posts)
+  }
+
   return (
     <div className="flex w-full flex-col gap-6 lg:basis-3/5">
-      <SayGMForm user={user} />
-      <PostList user={user} id={String(user.id)} />
+      <PostList creator={creator} posts={posts} isLoading={isLoading} />
     </div>
   )
 }
 
-const PostList = ({ id, user }: { id: string; user: Database["public"]["Tables"]["tbl_users"]["Row"] }) => {
-  const { data: posts = [], isLoading } = useCreatorPosts(id)
-
+const PostList = ({
+  creator,
+  posts,
+  isLoading,
+}: {
+  creator: Database["public"]["Tables"]["tbl_users"]["Row"]
+  posts: Database["public"]["Tables"]["tbl_posts"]["Row"][]
+  isLoading: boolean
+}) => {
   if (isLoading || !posts) {
     return Array.from({ length: 10 }).map((_, idx) => (
       <div className="w-full rounded-2xl bg-white p-5 shadow-card" key={idx}>
@@ -51,16 +92,20 @@ const PostList = ({ id, user }: { id: string; user: Database["public"]["Tables"]
   return posts.map((post) => {
     let userAvatar = ""
 
-    if (user?.profile_metadata && typeof user.profile_metadata === "object" && "avatar" in user.profile_metadata) {
-      userAvatar = user.profile_metadata.avatar?.toString() || ""
+    if (
+      creator?.profile_metadata &&
+      typeof creator.profile_metadata === "object" &&
+      "avatar" in creator.profile_metadata
+    ) {
+      userAvatar = creator.profile_metadata.avatar?.toString() || ""
     }
 
     return (
       <PostCard
         key={post.id}
-        user={{
-          domain_name: user.domain_name || "",
-          wallet: user.wallet || "",
+        creator={{
+          domain_name: creator.domain_name || "",
+          wallet: creator.wallet || "",
           profile_metadata: { avatar: userAvatar },
         }}
         post={post}

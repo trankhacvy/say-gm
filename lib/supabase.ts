@@ -1,9 +1,11 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js"
+import dayjs from "dayjs"
 import { Database } from "@/types/supabase.types"
 import { IS_PROD } from "@/utils/env"
+import { AUDIENCE_OPTIONS_ENUM } from "../utils/constants"
 
 export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
-export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_user_feeds"
+export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_tbl_donations"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 export const DROPS_TABLE = IS_PROD ? "dev_tbl_drops" : "dev_tbl_drops"
@@ -187,6 +189,29 @@ class Supabase {
     return data
   }
 
+  async findMyMembership(creatorId: string, address: string) : Promise<any> {
+    const { data, error } = await this.client
+      .from(MEMBERSHIP_TIERS_TABLE)
+      .select(`
+        id,
+        name,
+        price,
+        ${MEMBERSHIP_TABLE} (member)
+      `)
+      .eq("creator_id", creatorId)
+      .eq(`${MEMBERSHIP_TABLE}.member`, "5AHKzmDcjeAAnafTivi5u7dWYw3jUQh2VBRDzSd9ztVr")
+      .limit(1)
+      .single();
+    
+    console.log('myMembership data', data);
+
+    if (!data || error) return null
+
+    return data;
+  }
+
+
+
   //posts
   async createPost(params: PostModel) {
     const { authorId, content, imageUrls, postAddress, signature, metadataUri, audience, minMembershipTier } = params
@@ -231,6 +256,34 @@ class Supabase {
     if (!data || error) throw error
     return data
   }
+
+  async findPosts(creator: string, audiences = [AUDIENCE_OPTIONS_ENUM.public], userTier = 0) {
+    const queryBuilder = this.client.from(POST_TABLE).select("*").eq("author_id", creator);
+    if (audiences.includes(AUDIENCE_OPTIONS_ENUM.members)) {
+      queryBuilder.or(`audience.in.(${[AUDIENCE_OPTIONS_ENUM.supporters,AUDIENCE_OPTIONS_ENUM.public]}),audience.eq.${AUDIENCE_OPTIONS_ENUM.members}&minimum_tier.lte.${userTier}`);
+    } else {
+      queryBuilder.in("audience", audiences);
+    }
+
+    const { data, error } = await queryBuilder.order("created_at", { ascending: false });
+
+    if (!data || error) throw error
+    return data
+  }
+
+  async getDonationInLastMonth(address: string) {
+    const { data, error } = await this.client
+      .from(DONATIONS_TABLE)
+      .select("*")
+      .eq("donator", address)
+      .gte("created_at", dayjs().subtract(1, "month").toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1).single();
+    if (!data || error) return null
+
+    return data
+  }
+
 
   // misc
   uploadFile = async (filename: string, file: File) => {

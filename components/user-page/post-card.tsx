@@ -12,10 +12,10 @@ import { Typography } from "../ui/typography"
 
 type PostCardProps = {
   post: Database["public"]["Tables"]["tbl_posts"]["Row"]
-  user: { domain_name: string; wallet: string; profile_metadata: { avatar?: string } }
+  creator: { domain_name: string; wallet: string; profile_metadata: { avatar?: string } }
 }
 
-export default function PostCard({ post, user }: PostCardProps) {
+export default function PostCard({ post, creator }: PostCardProps) {
   const [liked, setLiked] = useState(false)
   const [likes, setLikes] = useState(post.total_reactions || 0)
 
@@ -50,11 +50,11 @@ export default function PostCard({ post, user }: PostCardProps) {
             width={40}
             height={40}
             alt="profile"
-            src={user?.profile_metadata?.avatar ?? getUserAvatar(user?.wallet ?? "A")}
+            src={creator?.profile_metadata?.avatar ?? getUserAvatar(creator?.wallet ?? "A")}
             className="rounded-full"
           />
           <div className="flex-1">
-            <Typography className="font-semibold">{user.domain_name}</Typography>
+            <Typography className="font-semibold">{creator.domain_name}</Typography>
             <Typography as="p" level="body5" className="mt-1" color="secondary">
               {dayjs(post.created_at).format("DD MMM YYYY")}
             </Typography>

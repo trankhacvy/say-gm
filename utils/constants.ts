@@ -26,3 +26,10 @@ export const AUDIENCE_OPTIONS_MAP = {
   supporters: "All Supporters (One-off & Monthly)",
   members: "All Monthly Supporters (Members)",
 }
+
+
+export enum AUDIENCE_OPTIONS_ENUM {
+  public = "public",
+  supporters = "supporters",
+  members = "members",
+}
