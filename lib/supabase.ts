@@ -289,10 +289,14 @@ class Supabase {
     return data
   }
 
-  async findPosts(creator: string, audiences = [AUDIENCE_OPTIONS_ENUM.public], userTier = 0) {
+  async findPosts(creator: string, audiences = [AUDIENCE_OPTIONS_ENUM.public], userTier = 0, isCreator = false) {
     const queryBuilder = this.client.from(POST_TABLE).select("*").eq("author_id", creator);
     if (audiences.includes(AUDIENCE_OPTIONS_ENUM.members)) {
-      queryBuilder.or(`audience.in.(${[AUDIENCE_OPTIONS_ENUM.supporters,AUDIENCE_OPTIONS_ENUM.public]}),audience.eq.${AUDIENCE_OPTIONS_ENUM.members}&minimum_tier.lte.${userTier}`);
+      if (isCreator) {
+        queryBuilder.in("audience", audiences);
+      } else {
+        queryBuilder.or(`audience.in.(${[AUDIENCE_OPTIONS_ENUM.supporters,AUDIENCE_OPTIONS_ENUM.public]}),and(audience.eq.${AUDIENCE_OPTIONS_ENUM.members}, min_membership_tier.lte.${userTier})`);
+      }
     } else {
       queryBuilder.in("audience", audiences);
     }

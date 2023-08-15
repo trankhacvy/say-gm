@@ -21,9 +21,10 @@ export default function Post({ creator }: PostProps) {
   const [listLikedPosts, setListLikedPosts] = useState<number[]>([])
 
   useEffect(() => {
-    getListPosts(publicKey?.toBase58())
-    setUserAddress(publicKey?.toBase58() || "")
-    getListLikedPosts(publicKey?.toBase58())
+    if (!publicKey) return
+    getListPosts(publicKey.toBase58())
+    setUserAddress(publicKey.toBase58())
+    getListLikedPosts(publicKey.toBase58())
   }, [publicKey])
 
   const getListLikedPosts = async (userAddress?: string) => {
@@ -38,24 +39,30 @@ export default function Post({ creator }: PostProps) {
 
   const getListPosts = async (userAddress?: string) => {
     const audiences = [AUDIENCE_OPTIONS_ENUM.public]
+    console.log("userAddress", userAddress, creator.wallet, userAddress == creator.wallet)
 
-    const donation = await supabase.getDonationInLastMonth(userAddress)
-    console.log("donation", donation)
-
-    if (donation) audiences.push(AUDIENCE_OPTIONS_ENUM.supporters)
-
-    const myMemberShip = await supabase.findMyMembership(String(creator.id), userAddress)
     let mininumTier = 0
-    if (myMemberShip && myMemberShip.dev_tbl_memberships.length > 0) {
-      audiences.push(AUDIENCE_OPTIONS_ENUM.members)
-      mininumTier = myMemberShip.price
-    }
+    const isCreator = userAddress == creator.wallet
+    if (isCreator) {
+      audiences.push(AUDIENCE_OPTIONS_ENUM.members, AUDIENCE_OPTIONS_ENUM.supporters)
+    } else {
+      const donation = await supabase.getDonationInLastMonth(userAddress)
+      console.log("donation", donation)
 
+      const myMemberShip = await supabase.findMyMembership(String(creator.id), userAddress)
+      if (myMemberShip && myMemberShip.dev_tbl_memberships.length > 0) {
+        audiences.push(AUDIENCE_OPTIONS_ENUM.members)
+        mininumTier = myMemberShip.price
+      }
+      if (donation || myMemberShip) audiences.push(AUDIENCE_OPTIONS_ENUM.supporters)
+    }
     console.log("mininumTier ", mininumTier)
 
-    setIsLoading(false)
+    console.log("audiences", audiences)
 
-    const posts = await supabase.findPosts(String(creator.id), audiences, mininumTier)
+    const posts = await supabase.findPosts(String(creator.id), audiences, mininumTier, isCreator)
+
+    setIsLoading(false)
 
     setPosts(posts)
   }
