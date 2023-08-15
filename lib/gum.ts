@@ -53,6 +53,19 @@ class GumService {
       return null
     }
   }
+
+  async getPostsByProfile(authority: string){
+    try {
+      return this.sdk.post.getPostsByProfile(new PublicKey(authority))
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
+
+  // async createProfile(domain: string, metadataUri: string) {
+  //   this.sdk.nameserviceProgram.methods.createNameRecord
+  // }
 }
 
 export default new GumService()

@@ -9,6 +9,18 @@ export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_membershi
 // views
 const USER_FEED_VIEW = IS_PROD ? "user_feeds" : "dev_user_feeds"
 const TOP_DONATIONS_VIEW = IS_PROD ? "top_donations" : "dev_top_donations"
+export const POST_TABLE = IS_PROD ? "tbl_posts" : "dev_tbl_posts"
+
+export type PostModel = {
+  authorId: number | undefined
+  content: string
+  imageUrls: string[]
+  postAddress?: string
+  signature: string
+  metadataUri: string
+  audience: string
+  minMembershipTier?: number
+}
 
 class Supabase {
   client: SupabaseClient<Database>
@@ -160,6 +172,40 @@ class Supabase {
     return data
   }
 
+  //posts
+  async createPost(
+    params: PostModel
+  ) {
+    const { authorId, content, imageUrls, postAddress, signature, metadataUri, audience, minMembershipTier } = params
+    if (!authorId) throw new Error('Invalid author')
+    const { data, error } = await this.client
+      .from(POST_TABLE)
+      .insert({
+        author_id: authorId,
+        content,
+        image_urls: imageUrls,
+        post_address: postAddress,
+        signature,
+        post_metadata_uri: metadataUri,
+        audience,
+        min_membership_tier: minMembershipTier,
+      })
+    if (!data || error) throw error
+    return data
+  }
+
+  async findPostsByCreator(creator: string) {
+    const { data, error } = await this.client
+      .from(POST_TABLE)
+      .select("*")
+      .eq("author_id", creator)
+      .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+
+  // misc
   uploadFile = async (filename: string, file: File) => {
     const { data, error } = await this.client.storage.from("minions").upload(filename, file, {
       upsert: true,

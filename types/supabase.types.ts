@@ -371,6 +371,58 @@ export interface Database {
           }
         ]
       }
+      tbl_posts: {
+        Row: {
+          audience: string
+          author_id: number
+          content: string
+          created_at: string
+          id: number
+          image_urls: string[] | null
+          min_membership_tier: number | null
+          post_address: string
+          post_metadata_uri: string
+          signature: string
+          total_reactions: number
+          updated_at: string
+        }
+        Insert: {
+          audience: string
+          author_id: number
+          content?: string
+          created_at?: string
+          id?: number
+          image_urls?: string[] | null
+          min_membership_tier?: number | null
+          post_address?: string
+          post_metadata_uri: string
+          signature?: string
+          total_reactions?: number
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          author_id?: number
+          content?: string
+          created_at?: string
+          id?: number
+          image_urls?: string[] | null
+          min_membership_tier?: number | null
+          post_address?: string
+          post_metadata_uri?: string
+          signature?: string
+          total_reactions?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_posts_author_id_fkey"
+            columns: ["author_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       tbl_users: {
         Row: {
           created_at: string | null
@@ -500,6 +552,49 @@ export interface Database {
           creator_id: number | null
           donator: string | null
           total_amount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_donations_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      top_donations: {
+        Row: {
+          count_donation: number | null
+          creator_id: number | null
+          donator: string | null
+          donator_avatar: string | null
+          donator_username: string | null
+          donator_wallet: string | null
+          total_amount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tbl_donations_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_feeds: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          creator_id: number | null
+          donator: string | null
+          donator_avatar: string | null
+          donator_username: string | null
+          donator_wallet: string | null
+          id: string | null
+          message: string | null
+          name: string | null
+          num_of_gm: number | null
+          signature: string | null
         }
         Relationships: [
           {
