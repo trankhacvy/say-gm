@@ -17,10 +17,24 @@ export default function Post({ creator }: PostProps) {
   const { publicKey } = useWallet()
   const [posts, setPosts] = useState<Database["public"]["Tables"]["tbl_posts"]["Row"][]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [userAddress, setUserAddress] = useState<string>("")
+  const [listLikedPosts, setListLikedPosts] = useState<number[]>([])
 
   useEffect(() => {
     getListPosts(publicKey?.toBase58())
+    setUserAddress(publicKey?.toBase58() || "")
+    getListLikedPosts(publicKey?.toBase58())
   }, [publicKey])
+
+  const getListLikedPosts = async (userAddress?: string) => {
+    if (!userAddress) return
+
+    const likedPosts = await supabase.getLikedPostsByUser(userAddress)
+
+    if (likedPosts) {
+      setListLikedPosts(likedPosts.map((post) => post.post_id))
+    }
+  }
 
   const getListPosts = async (userAddress?: string) => {
     if (!userAddress) return []
@@ -50,7 +64,13 @@ export default function Post({ creator }: PostProps) {
 
   return (
     <div className="flex w-full flex-col gap-6 lg:basis-3/5">
-      <PostList creator={creator} posts={posts} isLoading={isLoading} />
+      <PostList
+        creator={creator}
+        posts={posts}
+        isLoading={isLoading}
+        userAddress={userAddress}
+        listLikedPosts={listLikedPosts}
+      />
     </div>
   )
 }
@@ -59,10 +79,14 @@ const PostList = ({
   creator,
   posts,
   isLoading,
+  userAddress,
+  listLikedPosts,
 }: {
   creator: Database["public"]["Tables"]["tbl_users"]["Row"]
   posts: Database["public"]["Tables"]["tbl_posts"]["Row"][]
   isLoading: boolean
+  userAddress: string
+  listLikedPosts: number[]
 }) => {
   if (isLoading || !posts) {
     return Array.from({ length: 10 }).map((_, idx) => (
@@ -108,7 +132,9 @@ const PostList = ({
           wallet: creator.wallet || "",
           profile_metadata: { avatar: userAvatar },
         }}
+        userAddress={userAddress}
         post={post}
+        isLiked={listLikedPosts?.includes(post.id) || false}
       />
     )
   })
