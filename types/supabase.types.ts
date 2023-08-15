@@ -56,6 +56,7 @@ export interface Database {
         Row: {
           audience: string | null
           created_at: string
+          creator_id: number | null
           description: string | null
           end_at: string | null
           id: string
@@ -69,6 +70,7 @@ export interface Database {
         Insert: {
           audience?: string | null
           created_at?: string
+          creator_id?: number | null
           description?: string | null
           end_at?: string | null
           id?: string
@@ -82,6 +84,7 @@ export interface Database {
         Update: {
           audience?: string | null
           created_at?: string
+          creator_id?: number | null
           description?: string | null
           end_at?: string | null
           id?: string
@@ -92,7 +95,20 @@ export interface Database {
           signature?: string | null
           start_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_drops_audience_fkey"
+            columns: ["audience"]
+            referencedRelation: "dev_tbl_memberships_tiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_tbl_drops_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "dev_tbl_users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       dev_tbl_memberships: {
         Row: {

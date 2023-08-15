@@ -19,7 +19,6 @@ import { getTransferTransaction } from "@/lib/solana"
 import { PublicKey } from "@solana/web3.js"
 import supabase from "@/lib/supabase"
 import { Separator } from "../ui/separator"
-import { SAMPLE_KEY } from "../memberships/new-tier-dialog"
 import { useGetMembershipsByWallet } from "@/hooks/use-memberships"
 
 type MembershipProps = {
@@ -118,7 +117,6 @@ const MembershipCard = ({
       if (!uri) throw new Error("Upload error")
 
       const mint = Keypair.generate()
-      const keypair = Keypair.fromSecretKey(Uint8Array.from(SAMPLE_KEY))
 
       const mintTx = await metaplex
         .nfts()
@@ -130,7 +128,6 @@ const MembershipCard = ({
           sellerFeeBasisPoints: 0,
           uri: uri,
           collection: new PublicKey(tier.mint_address ?? ""),
-          collectionAuthority: keypair,
         })
 
       const blockhash = await connection.getLatestBlockhash()
@@ -139,7 +136,7 @@ const MembershipCard = ({
       const transferTx = getTransferTransaction(publicKey, new PublicKey(user.wallet), solAmount)
       tx.add(...transferTx.instructions)
 
-      const signature = await sendTransaction(tx, connection, { signers: [mint, keypair] })
+      const signature = await sendTransaction(tx, connection, { signers: [mint] })
       await connection.confirmTransaction(signature, "processed")
 
       await supabase.createMembership(tier.id, publicKey.toBase58(), mint.publicKey.toBase58(), signature)

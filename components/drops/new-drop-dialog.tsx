@@ -84,7 +84,7 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
         num_of_nfts: values.num_of_nfts,
         signature: "0x00",
         start_at: values.startAt,
-        creator_id: String(session?.user.id),
+        creator_id: session?.user.id,
       })
       onSuccess?.()
       await mutate(["drops", String(session?.user.id)])
