@@ -86,6 +86,8 @@ export const NewPostDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewP
       } catch (ex) {
         console.error("[Post] create post error:", ex)
         throw ex
+      } finally {
+        onSuccess?.()
       }
     }
 
@@ -150,7 +152,7 @@ export const NewPostDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewP
         session.sessionPublicKey
       )
 
-      onSuccess?.()
+      // onSuccess?.()
       form.reset()
       onOpenChange?.(false)
 

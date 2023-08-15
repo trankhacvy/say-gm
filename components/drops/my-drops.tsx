@@ -1,27 +1,29 @@
 "use client"
 
-import { useGrouppedDonations } from "@/hooks/use-donations"
-import { getUserAvatar } from "@/utils/common"
-import { formatCurrency } from "@/utils/currency"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
-import { Skeleton } from "../ui/skeleton"
+import { useDrops } from "@/hooks/use-drops"
+import { MEMBERSHIP_TIERS_TABLE } from "@/lib/supabase"
+import dayjs from "dayjs"
 import { IconButton } from "../ui/icon-button"
 import { MoreVerticalIcon } from "lucide-react"
+import { Skeleton } from "../ui/skeleton"
 
-export default function MySupporters() {
+export default function MyDrops() {
   const { data: session } = useSession()
-  const { data: donations = [], isLoading } = useGrouppedDonations(String(session?.user.id))
+  const { data: drops = [], isLoading } = useDrops(String(session?.user.id))
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Image</TableHead>
-          <TableHead>Wallet Address</TableHead>
-          <TableHead>Total amount</TableHead>
-          <TableHead>Number of donations</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Num of NFTs</TableHead>
+          <TableHead>Audience</TableHead>
+          <TableHead>Start at</TableHead>
+          <TableHead>End at</TableHead>
           <TableHead>Action</TableHead>
         </TableRow>
       </TableHeader>
@@ -46,22 +48,19 @@ export default function MySupporters() {
             </TableRow>
           </>
         )}
-        {donations.map((donation) => (
-          <TableRow key={donation.donator}>
+        {drops.map((drop) => (
+          <TableRow key={drop.id}>
             <TableCell>
               <div className="relative h-10 w-10 overflow-hidden rounded-xl">
-                <Image
-                  className="rounded-full"
-                  src={getUserAvatar(donation.donator ?? "")}
-                  width="40"
-                  height="40"
-                  alt="user"
-                />
+                <Image alt={drop.name ?? ""} src={drop.image ?? ""} fill />
               </div>
             </TableCell>
-            <TableCell className="font-medium">{donation.donator}</TableCell>
-            <TableCell className="font-medium">{formatCurrency(donation.total_amount ?? 0)}</TableCell>
-            <TableCell className="font-medium">{donation.count_donation}</TableCell>
+            <TableCell className="font-medium">{drop.name}</TableCell>
+            <TableCell className="font-medium">{drop.num_of_nfts}</TableCell>
+            {/* @ts-ignore */}
+            <TableCell className="font-medium">{drop[MEMBERSHIP_TIERS_TABLE].name}</TableCell>
+            <TableCell className="font-medium">{dayjs(drop.start_at).format("DD/MM/YYYY")}</TableCell>
+            <TableCell className="font-medium">{dayjs(drop.end_at).format("DD/MM/YYYY")}</TableCell>
             <TableCell className="font-medium">
               <IconButton size="sm">
                 <MoreVerticalIcon />

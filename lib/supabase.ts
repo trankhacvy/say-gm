@@ -6,6 +6,7 @@ export const USERS_TABLE = IS_PROD ? "tbl_users" : "dev_tbl_users"
 export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_user_feeds"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
+export const DROPS_TABLE = IS_PROD ? "dev_tbl_drops" : "dev_tbl_drops"
 // views
 const USER_FEED_VIEW = IS_PROD ? "user_feeds" : "dev_user_feeds"
 const TOP_DONATIONS_VIEW = IS_PROD ? "top_donations" : "dev_top_donations"
@@ -209,6 +210,23 @@ class Supabase {
       .from(POST_TABLE)
       .select("*")
       .eq("author_id", creator)
+      .order("created_at", { ascending: false })
+    if (!data || error) throw error
+    return data
+  }
+
+  // drops
+  async createDrop(body: Database["public"]["Tables"]["dev_tbl_drops"]["Insert"]) {
+    const { data, error } = await this.client.from(DROPS_TABLE).insert(body).select("*").single()
+    if (!data || error) throw error
+    return data
+  }
+
+  async findDropsByCreator(creator: string) {
+    const { data, error } = await this.client
+      .from(DROPS_TABLE)
+      .select(`*,${MEMBERSHIP_TIERS_TABLE}(*)`)
+      .eq("creator_id", creator)
       .order("created_at", { ascending: false })
     if (!data || error) throw error
     return data

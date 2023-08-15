@@ -26,6 +26,11 @@ const NavItems = [
     icon: <PartyPopperIcon />,
   },
   {
+    text: "Drops",
+    href: Routes.DROPS,
+    icon: <PartyPopperIcon />,
+  },
+  {
     text: "Posts",
     href: Routes.POSTS,
     icon: <StickyNoteIcon />,

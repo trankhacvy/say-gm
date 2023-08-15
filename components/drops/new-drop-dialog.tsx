@@ -1,7 +1,7 @@
 "use client"
 
+import { mutate } from "swr"
 import { useForm } from "react-hook-form"
-import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import {
@@ -14,19 +14,21 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "../ui/icon-button"
 import { Input } from "../ui/input"
-import { XIcon } from "lucide-react"
+import { PlusIcon, XIcon } from "lucide-react"
 import { useToast } from "../ui/toast"
 import { AspectRatio } from "../ui/aspect-ratio"
 import { Uploader } from "../ui/uploader"
 import supabase from "@/lib/supabase"
 import { useSession } from "next-auth/react"
-import shyft from "@/lib/shyft"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
-import { Keypair } from "@solana/web3.js"
 import ConnectWalletButton from "../connect-wallet-button"
+import { useEffect, useState } from "react"
+import dayjs from "dayjs"
+import { useMembershipTiers } from "@/hooks/use-membership-tiers"
 
 type NewTierDialogProps = {
   trigger: React.ReactNode
@@ -36,91 +38,61 @@ type NewTierDialogProps = {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  description: z.string().optional(),
-  benefit: z.string().optional(),
-  price: z.number().min(0),
   image: z.any().refine((file) => !!file, "Image is required."),
+  name: z.string().min(1, { message: "Name is required" }),
+  num_of_nfts: z.number().min(0),
+  audience: z.string().min(1, { message: "Name is required" }),
+  description: z.string().optional(),
+  startAt: z.string().optional(),
+  endAt: z.string().optional(),
 })
 
 export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewTierDialogProps) => {
   const { toast } = useToast()
   const { data: session } = useSession()
   const wallet = useWallet()
-  const { publicKey, sendTransaction } = wallet
-  const { connection } = useConnection()
+  const { publicKey } = wallet
+  const { data: tiers } = useMembershipTiers(String(session?.user.id))
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      num_of_nfts: 100,
+      audience: "",
       description: "",
-      benefit: "",
-      price: 1,
+      startAt: dayjs().add(1, "d").format("YYYY-MM-DDThh:mm"),
+      endAt: dayjs().add(2, "d").format("YYYY-MM-DDThh:mm"),
     },
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (!publicKey) return
-
       const imageUrl = (await supabase.uploadFile(`${session?.user.id!}/${Date.now()}.png`, values.image)).data
         ?.publicUrl
 
       if (!imageUrl) throw new Error("Upload error")
 
-      const uploadResult = await shyft.uploadMetadata({
-        creator: publicKey.toBase58(),
+      await supabase.createDrop({
+        audience: values.audience,
+        description: values.description,
+        end_at: values.endAt,
         image: imageUrl,
+        merkle_tree: "0x00",
         name: values.name,
-        symbol: values.name.substring(0, 6).toUpperCase(),
-        description: values.description ?? "",
-        attributes: [
-          {
-            trait_type: "tier",
-            value: values.name,
-          },
-        ],
+        num_of_nfts: values.num_of_nfts,
+        signature: "0x00",
+        start_at: values.startAt,
+        creator_id: String(session?.user.id),
       })
-
-      if (!uploadResult) throw new Error("Upload error")
-
-      const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
-
-      const mint = Keypair.generate()
-
-      const tx = await metaplex
-        .nfts()
-        .builders()
-        .create({
-          useNewMint: mint,
-          name: values.name,
-          symbol: values.name.substring(0, 6).toUpperCase(),
-          sellerFeeBasisPoints: 0,
-          uri: uploadResult.uri,
-          isCollection: true,
-        })
-
-      const txResult = await metaplex.rpc().sendAndConfirmTransaction(tx, {}, [mint])
-
-      await supabase.createMembershipTier(
-        session?.user.id!,
-        values.name,
-        values.description ?? "",
-        values.benefit ?? "",
-        values.price,
-        imageUrl,
-        mint.publicKey.toBase58(),
-        txResult.signature
-      )
-
       onSuccess?.()
+      await mutate(["drops", String(session?.user.id)])
       form.reset()
       onOpenChange?.(false)
-
       toast({
         variant: "success",
-        title: "New Tier successfully created.",
+        title: "New drop successfully created.",
       })
     } catch (error: any) {
       console.error(error)
@@ -131,44 +103,81 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
     }
   }
 
+  useEffect(() => {
+    if (tiers && tiers.length > 0) {
+      form.resetField("audience", {
+        defaultValue: tiers[0].id ?? "",
+      })
+    }
+  }, [tiers, form])
+
   return (
     <>
       <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
         <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
         <AlertDialogContent className="max-h-[calc(100vh-80px)] max-w-md overflow-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>New tier</AlertDialogTitle>
+            <AlertDialogTitle>New drop</AlertDialogTitle>
           </AlertDialogHeader>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* image */}
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Image</FormLabel>
+                    <AspectRatio ratio={1 / 1}>
+                      <Uploader
+                        {...field}
+                        className="h-full"
+                        maxFiles={1}
+                        accept={{
+                          "image/png": [".png"],
+                          "image/jpeg": [".jpg", ".jpeg"],
+                        }}
+                        onExceedFileSize={() => form.setError("image", { message: "Max file size is 5MB" })}
+                        value={field.value ? [field.value] : []}
+                        onChange={(files) => {
+                          field.onChange(files?.[0])
+                        }}
+                      />
+                    </AspectRatio>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tier name</FormLabel>
+                    <FormLabel>Drop name</FormLabel>
                     <FormControl>
-                      <Input fullWidth placeholder="eg. Diamond" {...field} />
+                      <Input fullWidth placeholder="eg. New album release" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* num of nfts */}
               <FormField
                 control={form.control}
-                name="price"
+                name="num_of_nfts"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tier price</FormLabel>
+                    <FormLabel>Num of NFTs</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         fullWidth
-                        placeholder="eg. 3$"
+                        placeholder="eg. 100"
                         {...field}
                         onChange={(event) => field.onChange(Number(event.target.value?.replace(/[^0-9]/g, "")))}
-                        endDecorator={<span>$</span>}
                       />
                     </FormControl>
                     <FormMessage />
@@ -176,6 +185,30 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
                 )}
               />
 
+              {/* selected tiers */}
+              <FormField
+                control={form.control}
+                name="audience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Audience</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the audience" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tiers?.map((tier) => (
+                          <SelectItem value={tier.id}>{tier.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Description */}
               <FormField
                 control={form.control}
                 name="description"
@@ -195,49 +228,31 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
                   </FormItem>
                 )}
               />
-
+              {/* start at */}
               <FormField
                 control={form.control}
-                name="benefit"
+                name="startAt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Benefit</FormLabel>
+                    <FormLabel>Start at</FormLabel>
                     <FormControl>
-                      <Input
-                        as="textarea"
-                        rows={4}
-                        fullWidth
-                        placeholder="Describe the supporter benefit."
-                        {...field}
-                      />
+                      <Input fullWidth type="datetime-local" placeholder="eg." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* end at */}
               <FormField
                 control={form.control}
-                name="image"
+                name="endAt"
                 render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Avatar</FormLabel>
-                    <AspectRatio ratio={1 / 1}>
-                      <Uploader
-                        {...field}
-                        className="h-full"
-                        maxFiles={1}
-                        accept={{
-                          "image/png": [".png"],
-                          "image/jpeg": [".jpg", ".jpeg"],
-                        }}
-                        onExceedFileSize={() => form.setError("image", { message: "Max file size is 5MB" })}
-                        value={field.value ? [field.value] : []}
-                        onChange={(files) => {
-                          field.onChange(files?.[0])
-                        }}
-                      />
-                    </AspectRatio>
+                  <FormItem>
+                    <FormLabel>End at</FormLabel>
+                    <FormControl>
+                      <Input fullWidth type="datetime-local" placeholder="eg." {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -268,5 +283,16 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
         </AlertDialogContent>
       </AlertDialog>
     </>
+  )
+}
+
+export const NewDropButton = () => {
+  const [open, setOpen] = useState(false)
+  return (
+    <NewTierDialog
+      isOpen={open}
+      onOpenChange={setOpen}
+      trigger={<Button endDecorator={<PlusIcon />}>New drop</Button>}
+    />
   )
 }

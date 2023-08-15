@@ -6,4 +6,5 @@ export const Routes = {
   MEMBERSHIPS: "/memberships",
   SHOP: "/shop",
   SETTINGS: "/settings",
+  DROPS: "/drops",
 }

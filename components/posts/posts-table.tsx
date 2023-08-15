@@ -1,17 +1,21 @@
 "use client"
 
 import { AspectRatio } from "@radix-ui/react-aspect-ratio"
-import { Edit } from "lucide-react"
+import { Edit, MoreVerticalIcon } from "lucide-react"
 import Image from "next/image"
 import { MembersChip, PublicChip, SupportersChip } from "./post-chips"
 import { Database } from "../../types/supabase.types"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
+import { Skeleton } from "../ui/skeleton"
+import { IconButton } from "../ui/icon-button"
 
 type PostsTableProps = {
   userPosts: any[]
+  isLoading: boolean
 }
 
-export default function PostsTable({ userPosts }: PostsTableProps) {
-  return (
+export default function PostsTable({ userPosts, isLoading }: PostsTableProps) {
+  var x = (
     <div className="overflow-x-auto p-3">
       <table className="w-full table-auto">
         <thead className="bg-gray-50 text-xs font-semibold uppercase">
@@ -77,5 +81,66 @@ export default function PostsTable({ userPosts }: PostsTableProps) {
         </tbody>
       </table>
     </div>
+  )
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Id</TableHead>
+          <TableHead>Content</TableHead>
+          <TableHead>Audience</TableHead>
+          <TableHead>Total Reactions</TableHead>
+          <TableHead>Image</TableHead>
+          <TableHead>Action</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {isLoading && (
+          <>
+            <TableRow>
+              <TableCell colSpan={3}>
+                <Skeleton className="h-5 w-full" />
+              </TableCell>
+              <TableCell colSpan={4}>
+                <Skeleton className="h-5 w-full" />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell colSpan={3}>
+                <Skeleton className="h-5 w-full" />
+              </TableCell>
+              <TableCell colSpan={4}>
+                <Skeleton className="h-5 w-full" />
+              </TableCell>
+            </TableRow>
+          </>
+        )}
+        {userPosts.map((post) => (
+          <TableRow key={post.id}>
+            <TableCell className="font-medium">{post.id}</TableCell>
+            <TableCell className="font-medium">
+              {post.content.length > 60 ? `${post.content.slice(0, 50)}...` : post.content}
+            </TableCell>
+            <TableCell className="font-medium">
+              {post.audience === "members" && <MembersChip />}
+              {post.audience === "supporters" && <SupportersChip />}
+              {post.audience === "public" && <PublicChip />}
+            </TableCell>
+            <TableCell className="font-medium">{post.total_reactions}</TableCell>
+            <TableCell className="font-medium">
+              <div className="relative h-10 w-10 overflow-hidden rounded-md">
+                <Image src={post?.image_urls?.[0] ?? ""} width="40" height="40" alt="user" />
+              </div>
+            </TableCell>
+            <TableCell className="font-medium">
+              <IconButton size="sm">
+                <MoreVerticalIcon />
+              </IconButton>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }

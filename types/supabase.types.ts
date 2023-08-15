@@ -52,6 +52,48 @@ export interface Database {
           }
         ]
       }
+      dev_tbl_drops: {
+        Row: {
+          audience: string | null
+          created_at: string
+          description: string | null
+          end_at: string | null
+          id: string
+          image: string | null
+          merkle_tree: string | null
+          name: string | null
+          num_of_nfts: number | null
+          signature: string | null
+          start_at: string | null
+        }
+        Insert: {
+          audience?: string | null
+          created_at?: string
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          image?: string | null
+          merkle_tree?: string | null
+          name?: string | null
+          num_of_nfts?: number | null
+          signature?: string | null
+          start_at?: string | null
+        }
+        Update: {
+          audience?: string | null
+          created_at?: string
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          image?: string | null
+          merkle_tree?: string | null
+          name?: string | null
+          num_of_nfts?: number | null
+          signature?: string | null
+          start_at?: string | null
+        }
+        Relationships: []
+      }
       dev_tbl_memberships: {
         Row: {
           created_at: string
