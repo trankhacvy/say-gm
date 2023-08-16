@@ -12,8 +12,10 @@ export default function DashboardPage() {
     <div className="mx-auto w-full max-w-screen-xl">
       <div className="flex flex-col gap-4">
         <DashboardStatsGrid />
-        <div className="flex w-full flex-row gap-4">
+        <div className="flex w-full flex-col gap-4 sm:flex-row">
+          {/* <div className="overflow-x-auto"> */}
           <RevenueChart />
+          {/* </div> */}
           <MembershipPieChart />
         </div>
         <div className="w-full">

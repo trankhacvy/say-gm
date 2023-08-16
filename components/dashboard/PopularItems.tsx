@@ -38,7 +38,7 @@ const popularItems = [
   },
   {
     id: "4314",
-    product_name: "Blockchain technology explained PDF",
+    product_name: "Blockchain technology explained",
     product_thumbnail:
       "https://images.unsplash.com/photo-1623227413711-25ee4388dae3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=120&h=120&q=80",
     product_price: "$99.00",

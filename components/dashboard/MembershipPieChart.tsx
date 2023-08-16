@@ -40,9 +40,9 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 
 export default function MembershipPieChart() {
   return (
-    <div className="flex h-[22rem] w-[20rem] flex-col rounded-sm border border-gray-200 bg-white p-4">
+    <div className="flex w-full flex-col rounded-sm border border-gray-200 bg-white p-4 sm:h-[22rem] sm:w-[20rem]">
       <strong className="font-medium text-gray-700">Membership</strong>
-      <div className="mt-3 w-full flex-1 text-xs">
+      <div className="item mt-3 w-full flex-1 text-xs">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart width={400} height={300}>
             <Pie
