@@ -5,7 +5,7 @@ import { IoCafeOutline, IoPieChart, IoPeople, IoCart } from "react-icons/io5"
 
 export default function DashboardStatsGrid() {
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row">
       <BoxWrapper>
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-500">
           <IoCafeOutline className="text-2xl text-white" />
