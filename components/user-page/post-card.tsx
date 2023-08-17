@@ -57,7 +57,7 @@ export default function PostCard({ post, creator, userAddress, isLiked }: PostCa
   }
 
   return (
-    <div className="w-3/4 rounded-2xl bg-white shadow-card">
+    <div className="w-full rounded-2xl bg-white shadow-card">
       <div className="flex items-center justify-between gap-4 px-6 pt-6">
         <div className="flex items-center gap-4">
           <Image

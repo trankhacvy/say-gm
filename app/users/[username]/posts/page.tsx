@@ -10,7 +10,7 @@ export default async function PostPage({ params }: { params: { username: string 
   }
 
   return (
-    <div className="mt-10 flex w-full flex-col gap-4 md:gap-6 lg:flex-row lg:gap-10">
+    <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 md:gap-6 lg:flex-row lg:gap-10">
       <Post creator={creator} />
     </div>
   )
