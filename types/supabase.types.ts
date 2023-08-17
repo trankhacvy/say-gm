@@ -52,6 +52,40 @@ export interface Database {
           }
         ]
       }
+      dev_tbl_drop_claims: {
+        Row: {
+          claimant: string | null
+          created_at: string
+          drop_id: string | null
+          id: string
+          nft_address: string | null
+          signature: string | null
+        }
+        Insert: {
+          claimant?: string | null
+          created_at?: string
+          drop_id?: string | null
+          id?: string
+          nft_address?: string | null
+          signature?: string | null
+        }
+        Update: {
+          claimant?: string | null
+          created_at?: string
+          drop_id?: string | null
+          id?: string
+          nft_address?: string | null
+          signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tbl_drop_claims_drop_id_fkey"
+            columns: ["drop_id"]
+            referencedRelation: "dev_tbl_drops"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       dev_tbl_drops: {
         Row: {
           audience: string | null

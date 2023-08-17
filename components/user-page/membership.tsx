@@ -28,7 +28,11 @@ type MembershipProps = {
 export default function Membership({ user }: MembershipProps) {
   const { data: membershipTiers, isLoading } = useMembershipTiers(String(user.id))
   const { publicKey } = useWallet()
-  const { data: memberships, isLoading: isMembershipsLoading } = useGetMembershipsByWallet(publicKey?.toBase58())
+  const {
+    data: memberships,
+    isLoading: isMembershipsLoading,
+    mutate,
+  } = useGetMembershipsByWallet(publicKey?.toBase58())
 
   return (
     <>
@@ -62,6 +66,7 @@ export default function Membership({ user }: MembershipProps) {
                   user={user}
                   hideAction={!!publicKey && publicKey.toBase58() === user.wallet}
                   joined={!!memberships?.find((membership) => membership.tier_id === item.id)}
+                  onSuccess={mutate}
                 />
               ))}
             </div>
@@ -77,11 +82,13 @@ const MembershipCard = ({
   user,
   hideAction,
   joined = false,
+  onSuccess,
 }: {
   tier: Database["public"]["Tables"]["tbl_memberships_tiers"]["Row"]
   user: Database["public"]["Tables"]["tbl_users"]["Row"]
   hideAction?: boolean
   joined?: boolean
+  onSuccess?: VoidFunction
 }) => {
   const wallet = useWallet()
   const { publicKey, sendTransaction } = wallet
@@ -145,6 +152,7 @@ const MembershipCard = ({
         variant: "success",
         title: "Successfully join membership",
       })
+      onSuccess?.()
     } catch (error: any) {
       console.error(error)
       toast({

@@ -21,6 +21,10 @@ class ShyftService {
     return this.shyft.nft.createV2(params)
   }
 
+  async createCNFT(params: Parameters<ShyftSdk["nft"]["compressed"]["mint"]>[0]) {
+    return this.shyft.nft.compressed.mint(params)
+  }
+
   async uploadMetadata(params: Parameters<ShyftSdk["storage"]["createMetadata"]>[0]) {
     return this.shyft.storage.createMetadata(params)
   }

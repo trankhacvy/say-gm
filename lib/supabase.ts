@@ -9,6 +9,7 @@ export const DONATIONS_TABLE = IS_PROD ? "tbl_donations" : "dev_tbl_donations"
 export const MEMBERSHIP_TIERS_TABLE = IS_PROD ? "tbl_memberships_tiers" : "dev_tbl_memberships_tiers"
 export const MEMBERSHIP_TABLE = IS_PROD ? "tbl_memberships" : "dev_tbl_memberships"
 export const DROPS_TABLE = IS_PROD ? "dev_tbl_drops" : "dev_tbl_drops"
+export const CLAIM_DROPS_TABLE = IS_PROD ? "dev_tbl_drop_claims" : "dev_tbl_drop_claims"
 // views
 const USER_FEED_VIEW = IS_PROD ? "user_feeds" : "dev_user_feeds"
 const TOP_DONATIONS_VIEW = IS_PROD ? "top_donations" : "dev_top_donations"
@@ -190,29 +191,29 @@ class Supabase {
     return data
   }
 
-  async findMyMembership(creatorId: string, address?: string) : Promise<any> {
-    if (!address) return null;
+  async findMyMembership(creatorId: string, address?: string): Promise<any> {
+    if (!address) return null
     const { data, error } = await this.client
       .from(MEMBERSHIP_TIERS_TABLE)
-      .select(`
+      .select(
+        `
         id,
         name,
         price,
         ${MEMBERSHIP_TABLE} (member)
-      `)
+      `
+      )
       .eq("creator_id", creatorId)
       .eq(`${MEMBERSHIP_TABLE}.member`, address)
       .limit(1)
-      .single();
-    
-    console.log('myMembership data', data);
+      .single()
+
+    console.log("myMembership data", data)
 
     if (!data || error) return null
 
-    return data;
+    return data
   }
-
-
 
   //posts
   async createPost(params: PostModel) {
@@ -243,30 +244,33 @@ class Supabase {
   }
 
   //reaction
-  async createReaction(params: { reacter: string, postId: number }) {
-    const { data, error } = await this.client.from(REACTION_TABLE).insert({
-      reacter: params.reacter,
-      post_id: params.postId,
-    }).select("*").single()
+  async createReaction(params: { reacter: string; postId: number }) {
+    const { data, error } = await this.client
+      .from(REACTION_TABLE)
+      .insert({
+        reacter: params.reacter,
+        post_id: params.postId,
+      })
+      .select("*")
+      .single()
 
     if (!data || error) throw error
 
-    await this.client.rpc('incrementreactions', { x: 1, row_id: params.postId })
+    await this.client.rpc("incrementreactions", { x: 1, row_id: params.postId })
   }
 
-  async removeReaction(params: { reacter: string, postId: number }) {
-    await this.client.from(REACTION_TABLE)
-      .delete()
-      .eq("reacter", params.reacter)
-      .eq("post_id", params.postId);
+  async removeReaction(params: { reacter: string; postId: number }) {
+    await this.client.from(REACTION_TABLE).delete().eq("reacter", params.reacter).eq("post_id", params.postId)
 
-    await this.client.rpc('incrementreactions', { x: -1, row_id: params.postId })
+    await this.client.rpc("incrementreactions", { x: -1, row_id: params.postId })
   }
 
   async getLikedPostsByUser(user: string) {
-    const { data, error } = await this.client.from(REACTION_TABLE)
+    const { data, error } = await this.client
+      .from(REACTION_TABLE)
       .select("*")
-      .eq("reacter", user).order("created_at", { ascending: false });
+      .eq("reacter", user)
+      .order("created_at", { ascending: false })
 
     if (!data || error) throw error
     return data
@@ -289,19 +293,40 @@ class Supabase {
     return data
   }
 
+  async claimDrop(body: Database["public"]["Tables"]["dev_tbl_drop_claims"]["Insert"]) {
+    const { data, error } = await this.client.from(CLAIM_DROPS_TABLE).insert(body).select("*").single()
+    if (!data || error) throw error
+    return data
+  }
+
+  async findClaimByWallet(dropId: string, wallet: string) {
+    const { data, error } = await this.client
+      .from(CLAIM_DROPS_TABLE)
+      .select("*")
+      .eq("claimant", wallet)
+      .eq("drop_id", dropId)
+      .single()
+    if (!data || error) return null
+    return data
+  }
+
   async findPosts(creator: string, audiences = [AUDIENCE_OPTIONS_ENUM.public], userTier = 0, isCreator = false) {
-    const queryBuilder = this.client.from(POST_TABLE).select("*").eq("author_id", creator);
+    const queryBuilder = this.client.from(POST_TABLE).select("*").eq("author_id", creator)
     if (audiences.includes(AUDIENCE_OPTIONS_ENUM.members)) {
       if (isCreator) {
-        queryBuilder.in("audience", audiences);
+        queryBuilder.in("audience", audiences)
       } else {
-        queryBuilder.or(`audience.in.(${[AUDIENCE_OPTIONS_ENUM.supporters,AUDIENCE_OPTIONS_ENUM.public]}),and(audience.eq.${AUDIENCE_OPTIONS_ENUM.members}, min_membership_tier.lte.${userTier})`);
+        queryBuilder.or(
+          `audience.in.(${[AUDIENCE_OPTIONS_ENUM.supporters, AUDIENCE_OPTIONS_ENUM.public]}),and(audience.eq.${
+            AUDIENCE_OPTIONS_ENUM.members
+          }, min_membership_tier.lte.${userTier})`
+        )
       }
     } else {
-      queryBuilder.in("audience", audiences);
+      queryBuilder.in("audience", audiences)
     }
 
-    const { data, error } = await queryBuilder.order("created_at", { ascending: false });
+    const { data, error } = await queryBuilder.order("created_at", { ascending: false })
 
     if (!data || error) throw error
     return data
@@ -316,12 +341,12 @@ class Supabase {
       .eq("donator", address)
       .gte("created_at", dayjs().subtract(1, "month").toISOString())
       .order("created_at", { ascending: false })
-      .limit(1).single();
+      .limit(1)
+      .single()
     if (!data || error) return null
 
     return data
   }
-
 
   // misc
   uploadFile = async (filename: string, file: File) => {

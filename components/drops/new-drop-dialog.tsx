@@ -79,10 +79,10 @@ export const NewTierDialog = ({ trigger, onSuccess, isOpen, onOpenChange }: NewT
         description: values.description,
         end_at: values.endAt,
         image: imageUrl,
-        merkle_tree: "0x00",
+        merkle_tree: process.env.NEXT_PUBLIC_MERKLE_TREE,
         name: values.name,
         num_of_nfts: values.num_of_nfts,
-        signature: "0x00",
+        signature: process.env.NEXT_PUBLIC_MERKLE_TREE,
         start_at: values.startAt,
         creator_id: session?.user.id,
       })
