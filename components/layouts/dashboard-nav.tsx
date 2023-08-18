@@ -1,6 +1,14 @@
 "use client"
 
-import { HeartHandshakeIcon, HomeIcon, PartyPopperIcon, SettingsIcon, StickyNoteIcon, StoreIcon } from "lucide-react"
+import {
+  DropletIcon,
+  HeartHandshakeIcon,
+  HomeIcon,
+  PartyPopperIcon,
+  SettingsIcon,
+  StickyNoteIcon,
+  StoreIcon,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Typography } from "@/components/ui/typography"
@@ -28,7 +36,7 @@ const NavItems = [
   {
     text: "Drops",
     href: Routes.DROPS,
-    icon: <PartyPopperIcon />,
+    icon: <DropletIcon />,
   },
   {
     text: "Posts",
