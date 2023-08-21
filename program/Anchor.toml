@@ -1,0 +1,27 @@
+[features]
+seeds = false
+skip-lint = false
+[programs.localnet]
+demo_anchor = "EH9Nibp4mjdnTeU14aVV9q4xBmoRwcpZvqF93s9tFwRx"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "localnet"
+wallet = "/Users/trankhacvy/.config/solana/id.json"
+
+[scripts]
+# test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+# test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/tree.ts"
+# test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/profile.ts"
+# test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/post.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/membership.ts"
+
+[[test.genesis]]
+address = "cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK"
+program = "program-deps/spl_account_compression.so"
+
+[[test.genesis]]
+address = "noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV"
+program = "program-deps/spl_noop.so"
